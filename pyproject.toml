@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "threatfox-censys"
+version = "0.1.0"
+description = ""
+authors = ["Aidan Holland <aidan@censys.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.scripts]
+threatfox-censys = "threatfox_censys.__main__:main"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+censys = "^2.2.7"
+requests = "*"
+python-dotenv = "^1.0.0"
+pydantic = "^2.4.2"
+pyyaml = "^6.0.1"
+
+[tool.poetry.group.dev.dependencies]
+isort = "^5.12.0"
+black = "^23.9.1"
+pytest = "^7.4.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+profile = "black"
