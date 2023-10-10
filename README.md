@@ -20,9 +20,32 @@ poetry run python -m threatfox_censys
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
+### Testing
+
+```bash
+poetry run pytest
+```
+
+### Linting
+
+```bash
+poetry run flake8
+```
+
+### Formatting
+
+```bash
+poetry run black .
+poetry run isort .
+```
+
 ## License
 
 Threatfox Censys is licensed under the [MIT](https://choosealicense.com/licenses/mit/) license.
+
+## Author
+
+- [Aidan Holland](mailto:aidan@censys.com)
 
 ## Acknowledgements
 
