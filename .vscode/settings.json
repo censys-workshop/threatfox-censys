@@ -9,5 +9,11 @@
       "source.organizeImports": true
     }
   },
-  "isort.args": ["--profile", "black"]
+  "isort.args": [
+    "--profile",
+    "black"
+  ],
+  "[toml]": {
+    "editor.defaultFormatter": "tamasfe.even-better-toml"
+  }
 }
