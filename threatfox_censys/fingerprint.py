@@ -9,10 +9,10 @@ class Fingerprint(BaseModel):
     name: str
     censys_query: str
     censys_virtual_hosts: bool = False
+    threat_type: str = "botnet_cc"
     malware_name: str
     confidence_level: int = 50
     tags: Optional[List[str]] = None
-    comment: Optional[str] = None
 
 
 def get_censys_search_link_from_query(fingerprint: Fingerprint) -> str:
@@ -25,7 +25,7 @@ def get_censys_search_link_from_query(fingerprint: Fingerprint) -> str:
     return (
         "https://search.censys.io/search?resource=hosts&sort=RELEVANCE&per_page=25"
         + "&virtual_hosts="
-        + ("INCLUDE" if fingerprint.censys_virtual_hosts else "EXCLUDE")
+        + ("ONLY" if fingerprint.censys_virtual_hosts else "EXCLUDE")
         + "&q="
         + quote_plus(fingerprint.censys_query)
         + "&ref=threatfox"

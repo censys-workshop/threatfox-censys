@@ -1,3 +1,4 @@
+import logging
 from typing import Any, Optional
 
 import requests
@@ -55,7 +56,17 @@ class ThreatFoxClient:
         else:
             raise ValueError("Unsupported HTTP method")
 
-        response.raise_for_status()  # Raise an exception for HTTP errors
+        # Check for HTTP errors
+        if not response.ok:
+            # Log the error
+            logging.error(
+                f"Error sending request to {url}. Status code: {response.status_code}."
+            )
+            # Log the data if it exists
+            if data:
+                logging.error(f"Data: {data}")
+            raise requests.HTTPError(response=response)
+
         return response.json()
 
     def submit_ioc(
@@ -114,6 +125,18 @@ class ThreatFoxClient:
         if platform:
             data["platform"] = platform
 
+        response = self._send_request(endpoint="", method="POST", data=data)
+        return response
+
+    def query_tag(self, tag: str, limit: int = 1000):
+        """
+        Query a tag on ThreatFox.
+
+        :param tag: Tag you want to query.
+        :param limit: Maximum number of results to return.
+        :return: Response from the server.
+        """
+        data = {"query": "taginfo", "tag": tag, "limit": limit}
         response = self._send_request(endpoint="", method="POST", data=data)
         return response
 

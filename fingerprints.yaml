@@ -97,10 +97,10 @@ malware_name: "win.risepro"
 confidence_level: 100
 tags: [C2]
 ---
-name: "Cobalt Strike"
-censys_query: "services.service_name: COBALT_STRIKE and not labels: tarpit"
-censys_virtual_hosts: false
-malware_name: "win.cobalt_strike"
-confidence_level: 100
-tags: [C2]
----
+# name: "Cobalt Strike"
+# censys_query: "services.service_name: COBALT_STRIKE and not labels: tarpit"
+# censys_virtual_hosts: false
+# malware_name: "win.cobalt_strike"
+# confidence_level: 100
+# tags: [C2]
+# ---
