@@ -4,7 +4,13 @@ Threatfox Censys is a tool to query Censys.io for IP addresses and domains and t
 
 ## Installation
 
-Use the package manager [poetry](https://python-poetry.org/) to install Threatfox Censys.
+You will need to install [poetry](https://python-poetry.org/) on Python 3.10.
+
+```bash
+curl -sSL https://install.python-poetry.org | python3 -
+```
+
+Then install the dependencies.
 
 ```bash
 poetry install
