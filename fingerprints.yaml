@@ -97,6 +97,27 @@ malware_name: "win.risepro"
 confidence_level: 100
 tags: [C2]
 ---
+name: "Covenant"
+censys_query: "services.software.product: Covenant and not labels: tarpit"
+censys_virtual_hosts: false
+malware_name: "unknown"
+confidence_level: 100
+tags: [C2, Covenant]
+---
+name: "L3MON"
+censys_query: "services.software.product: L3MON and not labels: tarpit"
+censys_virtual_hosts: false
+malware_name: "unknown"
+confidence_level: 100
+tags: [C2, L3MON]
+---
+name: "Mythic"
+censys_query: "services.software.product: Mythic and not labels: tarpit"
+censys_virtual_hosts: false
+malware_name: "unknown"
+confidence_level: 100
+tags: [C2, Mythic]
+---
 name: "Cobalt Strike"
 censys_query: "services.service_name: COBALT_STRIKE and not labels: tarpit"
 censys_virtual_hosts: false
