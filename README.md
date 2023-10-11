@@ -1,6 +1,6 @@
 # Threatfox Censys
 
-Threatfox Censys is a tool to query Censys.io for IP addresses and domains and then parses the JSON and submits the results to Threatfox.
+Threatfox Censys is a tool to query [Censys Search](https://search.censys.io/) for IP addresses and domains and then parses the JSON and submits the results to Threatfox.
 
 ## Installation
 
@@ -61,8 +61,9 @@ Threatfox Censys is licensed under the [MIT](https://choosealicense.com/licenses
 ## TODO
 
 - [ ] Simplify the virtual hosts arg in the fingerprint model.
-- [ ] Add more fingerprint models.
+- [ ] Add more fingerprint.
 - [ ] Add more tests.
 - [ ] Add more documentation.
 - [ ] Add more error handling.
 - [ ] Add more logging.
+<!-- TODO: Add your feature idea here -->
