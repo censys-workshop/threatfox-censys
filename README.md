@@ -60,6 +60,7 @@ poetry run flake8
 ```bash
 poetry run black .
 poetry run isort .
+poetry run pyupgrade --py310-plus threatfox_censys/*.py scripts/*.py
 ```
 
 ## License
@@ -81,5 +82,4 @@ Threatfox Censys is licensed under the [MIT](https://choosealicense.com/licenses
 - [ ] Add more tests.
 - [ ] Add more documentation.
 - [ ] Add better error handling.
-- [ ] Add better logging.
-<!-- TODO: Add your feature idea here -->
+<!-- Add your idea here -->
