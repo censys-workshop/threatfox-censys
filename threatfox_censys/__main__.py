@@ -2,6 +2,7 @@ import logging
 from argparse import ArgumentParser, Namespace
 from ipaddress import IPv4Address
 
+from censys.common.version import __version__ as censys_version
 from censys.search import CensysHosts
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
@@ -15,6 +16,11 @@ from .fingerprint import (
 from .models import IoC
 from .settings import Settings
 from .threatfox import ThreatFoxClient
+
+USER_AGENT = (
+    f"censys-python/{censys_version} (ThreatfoxCensys;"
+    " +https://github.com/censys-workshop/threatfox-censys)"
+)
 
 
 def parse_args() -> Namespace:
@@ -252,7 +258,7 @@ def main():
     threatfox_client = ThreatFoxClient(api_key=settings.THREATFOX_API_KEY)
 
     # Create a CensysHosts instance
-    censys_client = CensysHosts()
+    censys_client = CensysHosts(user_agent=USER_AGENT)
 
     # Load fingerprints from YAML file
     fingerprints = load_fingerprints_from_yaml(args.fingerprints)
