@@ -1,6 +1,6 @@
 import logging
-import os
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
+from ipaddress import IPv4Address
 from typing import Optional
 
 from censys.search import CensysHosts
@@ -8,13 +8,17 @@ from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-from .fingerprint import Fingerprint, load_fingerprints_from_yaml
+from .fingerprint import (
+    Fingerprint,
+    get_censys_search_link_from_query,
+    load_fingerprints_from_yaml,
+)
 from .models import IoC
 from .settings import Settings
 from .threatfox import ThreatFoxClient
 
 
-def parse_args() -> ArgumentParser:
+def parse_args() -> Namespace:
     """
     Parse the arguments.
 
@@ -37,6 +41,20 @@ def parse_args() -> ArgumentParser:
         help="Run database migrations.",
     )
     return parser.parse_args()
+
+
+def is_ipv4_address(ip_address: str) -> bool:
+    """
+    Check if a string is an IPv4 address.
+
+    :param ip_address: The string to check.
+    :return: True if the string is an IPv4 address, False otherwise.
+    """
+    try:
+        IPv4Address(ip_address)
+        return True
+    except ValueError:
+        return False
 
 
 def submit_ioc(
@@ -72,7 +90,7 @@ def submit_ioc(
 
     # If the IoC is already in the database, return None
     if ioc_in_database:
-        logging.info(f"IoC {ioc} already in database.")
+        logging.debug(f"IoC {ioc} already in database.")
         return None
 
     # Get fingerprint tags
@@ -95,13 +113,19 @@ def submit_ioc(
     logging.debug(f"Tags: {tags}")
 
     reference: Optional[str] = None
-    # If the IoC is an IP address, add the "ip" tag
+    # If the IoC is an IP address, create the search link
     if ioc_type == "ip:port":
         # Get the IP address
         ip_address = ioc.split(":")[0]
 
         # Create the reference
         reference = f"https://search.censys.io/hosts/{ip_address}"
+    # If the IoC is a domain, create the search link
+    elif ioc_type == "domain":
+        # Create the query
+        censys_query = f"name: {ioc}"
+        # Create the reference
+        reference = get_censys_search_link_from_query(censys_query, True)
 
     # Log that we're submitting the IoC to ThreatFox
     logging.info(f"Submitting IoC {ioc} to ThreatFox...")
@@ -122,7 +146,7 @@ def submit_ioc(
     #         "ok": [],
     #         "ignored": [],
     #         "duplicated": [
-    #             "54.39.198.245:2351",
+    #             "1.1.1.1:2351",
     #         ],
     #         "reward": 0,
     #     },
@@ -225,11 +249,8 @@ def main():
         # Exit
         return
 
-    # Get the ThreatFox API key from the environment
-    threatfox_api_key = os.getenv("THREATFOX_API_KEY")
-
     # Create a ThreatFoxClient instance
-    threatfox_client = ThreatFoxClient(api_key=threatfox_api_key)
+    threatfox_client = ThreatFoxClient(api_key=settings.THREATFOX_API_KEY)
 
     # Create a CensysHosts instance
     censys_client = CensysHosts()
@@ -240,7 +261,7 @@ def main():
     # For each fingerprint, search Censys and submit the results to ThreatFox
     for fingerprint in fingerprints:
         # Get the virtual hosts
-        virtual_hosts = "ONLY" if fingerprint.censys_virtual_hosts else "EXCLUDE"
+        virtual_hosts = "INCLUDE" if fingerprint.censys_virtual_hosts else "EXCLUDE"
 
         # Search Censys
         query_response = censys_client.search(
@@ -261,48 +282,33 @@ def main():
 
         # Create the session
         with Session(engine) as session:
-            if fingerprint.censys_virtual_hosts:
-                # Parse out the name
-                for host in hosts:
-                    # Get the name
-                    name = host["name"]
+            # Parse out the name
+            for host in hosts:
+                # Try to get the name
+                name: Optional[str] = host.get("name", None)
 
-                    # Get autonomous_system.name
-                    autonomous_system_name = host["autonomous_system"]["name"]
+                # Get autonomous_system.name
+                autonomous_system_name = host["autonomous_system"]["name"]
 
-                    # Build the tag list
-                    additional_tags = []
+                # Build the tag list
+                additional_tags = []
 
-                    # If the autonomous_system.name does not contain a space, add it
-                    if " " not in autonomous_system_name:
-                        additional_tags.append(autonomous_system_name)
+                # If the autonomous_system.name does not contain a space, add it
+                if " " not in autonomous_system_name:
+                    additional_tags.append(autonomous_system_name)
 
-                    # Submit the name
-                    threatfox_response_data = submit_ioc(
-                        session,
-                        threatfox_client,
-                        fingerprint,
-                        name,
-                        "domain",
-                        additional_tags=additional_tags,
-                    )
-                    log_threatfox_response_data(fingerprint, threatfox_response_data)
-            else:
-                # Parse out the host:port combinations
-                for host in hosts:
+                # Loop over the matched services if there is no name
+                if name is None:
+                    ip = host["ip"]
+                    if not is_ipv4_address(ip):
+                        logging.warn(
+                            f"IP {ip} is not a valid IPv4 address. Skipping..."
+                        )
+                        continue
+
                     for matched_service in host["matched_services"]:
                         # Get the ip:port combination
                         ip_port = f"{host['ip']}:{matched_service['port']}"
-
-                        # Get autonomous_system.name
-                        autonomous_system_name = host["autonomous_system"]["name"]
-
-                        # Build the tag list
-                        additional_tags = []
-
-                        # If the autonomous_system.name does not contain a space, add it
-                        if " " not in autonomous_system_name:
-                            additional_tags.append(autonomous_system_name)
 
                         # Submit the ip:port combination
                         threatfox_response_data = submit_ioc(
@@ -316,6 +322,17 @@ def main():
                         log_threatfox_response_data(
                             fingerprint, threatfox_response_data
                         )
+                else:
+                    # Submit the name
+                    threatfox_response_data = submit_ioc(
+                        session,
+                        threatfox_client,
+                        fingerprint,
+                        name,
+                        "domain",
+                        additional_tags=additional_tags,
+                    )
+                    log_threatfox_response_data(fingerprint, threatfox_response_data)
 
 
 if __name__ == "__main__":

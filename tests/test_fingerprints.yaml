@@ -4,6 +4,5 @@ censys_query: ip:1.1.1.2
 censys_virtual_hosts: true
 malware_name: Test
 confidence_level: 50
-tags:
-  - test
-comment: Test
+tags: [test]
+---

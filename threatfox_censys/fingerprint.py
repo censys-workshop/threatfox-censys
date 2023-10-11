@@ -15,7 +15,7 @@ class Fingerprint(BaseModel):
     tags: Optional[List[str]] = None
 
 
-def get_censys_search_link_from_query(fingerprint: Fingerprint) -> str:
+def get_censys_search_link_from_query(query: str, virtual_hosts: bool = False) -> str:
     """
     Get the Censys search URL from a fingerprint.
 
@@ -25,10 +25,22 @@ def get_censys_search_link_from_query(fingerprint: Fingerprint) -> str:
     return (
         "https://search.censys.io/search?resource=hosts&sort=RELEVANCE&per_page=25"
         + "&virtual_hosts="
-        + ("ONLY" if fingerprint.censys_virtual_hosts else "EXCLUDE")
+        + ("INCLUDE" if virtual_hosts else "EXCLUDE")
         + "&q="
-        + quote_plus(fingerprint.censys_query)
+        + quote_plus(query)
         + "&ref=threatfox"
+    )
+
+
+def get_censys_search_link_for_fingerprint(fingerprint: Fingerprint) -> str:
+    """
+    Get the Censys search URL from a fingerprint.
+
+    :param fingerprint: The fingerprint to get the Censys search URL from.
+    :return: The Censys search URL.
+    """
+    return get_censys_search_link_from_query(
+        fingerprint.censys_query, fingerprint.censys_virtual_hosts
     )
 
 
