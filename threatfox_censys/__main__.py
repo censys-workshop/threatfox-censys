@@ -209,7 +209,7 @@ def log_threatfox_response_data(
     logging.info(
         f"Submitted fingerprint {fingerprint.name} to ThreatFox. Reward: {reward}."
     )
-    logging.info(
+    logging.debug(
         f"IoCs: {num_iocs} | Ignored: {num_ignored_iocs} | Duplicated:"
         f" {num_duplicated_iocs}"
     )
