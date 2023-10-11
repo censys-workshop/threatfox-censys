@@ -26,6 +26,7 @@ black = "^23.9.1"
 pytest = "^7.4.2"
 types-pyyaml = "^6.0.12.12"
 types-requests = "^2.31.0.8"
+pyupgrade = "^3.15.0"
 
 [build-system]
 requires = ["poetry-core"]

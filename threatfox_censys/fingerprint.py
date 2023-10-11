@@ -1,4 +1,3 @@
-from typing import List, Optional
 from urllib.parse import quote_plus
 
 import yaml
@@ -12,7 +11,7 @@ class Fingerprint(BaseModel):
     threat_type: str = "botnet_cc"
     malware_name: str
     confidence_level: int = 50
-    tags: Optional[List[str]] = None
+    tags: list[str] | None = None
 
 
 def get_censys_search_link_from_query(query: str, virtual_hosts: bool = False) -> str:
@@ -44,9 +43,9 @@ def get_censys_search_link_for_fingerprint(fingerprint: Fingerprint) -> str:
     )
 
 
-def load_fingerprints_from_yaml(file_path: str) -> List[Fingerprint]:
+def load_fingerprints_from_yaml(file_path: str) -> list[Fingerprint]:
     raw_data = []
-    with open(file_path, "r") as file:
+    with open(file_path) as file:
         for item in yaml.safe_load_all(file):
             if item is not None:
                 raw_data.append(item)

@@ -1,7 +1,6 @@
 import logging
 from argparse import ArgumentParser, Namespace
 from ipaddress import IPv4Address
-from typing import Optional
 
 from censys.search import CensysHosts
 from dotenv import load_dotenv
@@ -63,8 +62,8 @@ def submit_ioc(
     fingerprint: Fingerprint,
     ioc: str,
     ioc_type: str,
-    additional_tags: Optional[list[str]] = None,
-) -> Optional[dict]:
+    additional_tags: list[str] | None = None,
+) -> dict | None:
     """
     Submit an IoC to ThreatFox.
 
@@ -112,7 +111,7 @@ def submit_ioc(
     # Log the tags
     logging.debug(f"Tags: {tags}")
 
-    reference: Optional[str] = None
+    reference: str | None = None
     # If the IoC is an IP address, create the search link
     if ioc_type == "ip:port":
         # Get the IP address
@@ -285,7 +284,7 @@ def main():
             # Parse out the name
             for host in hosts:
                 # Try to get the name
-                name: Optional[str] = host.get("name", None)
+                name: str | None = host.get("name", None)
 
                 # Get autonomous_system.name
                 autonomous_system_name = host["autonomous_system"]["name"]
@@ -301,7 +300,7 @@ def main():
                 if name is None:
                     ip = host["ip"]
                     if not is_ipv4_address(ip):
-                        logging.warn(
+                        logging.warning(
                             f"IP {ip} is not a valid IPv4 address. Skipping..."
                         )
                         continue

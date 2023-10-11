@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Optional
+from typing import Any
 
 import requests
 
@@ -34,7 +34,7 @@ class ThreatFoxClient:
         self.headers = {"API-KEY": self.api_key, "Accept": "application/json"}
 
     def _send_request(
-        self, endpoint: str, method: str = "GET", data: Optional[Any] = None
+        self, endpoint: str, method: str = "GET", data: Any | None = None
     ) -> dict:
         """
         Internal method to send requests to the API.
@@ -144,10 +144,10 @@ class ThreatFoxClient:
         malware: str,
         iocs: list[str],
         confidence_level: int = 50,
-        reference: Optional[str] = None,
-        comment: Optional[str] = None,
+        reference: str | None = None,
+        comment: str | None = None,
         anonymous: bool = False,
-        tags: Optional[list[str]] = None,
+        tags: list[str] | None = None,
     ):
         data = {
             "query": "submit_ioc",
@@ -170,7 +170,7 @@ class ThreatFoxClient:
         response = self._send_request(endpoint="", method="POST", data=data)
         return response
 
-    def get_malware_label(self, malware: str, platform: Optional[str] = None):
+    def get_malware_label(self, malware: str, platform: str | None = None):
         """
         Identify the malware name (label) on ThreatFox.
 
