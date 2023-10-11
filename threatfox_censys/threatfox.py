@@ -20,7 +20,7 @@ class ThreatFoxClient:
         api_key: str,
         base_url: str = "https://threatfox-api.abuse.ch/api/v1/",
         timeout: int = 30,
-    ):
+    ) -> None:
         """
         Initialize the ThreatFoxClient with the given parameters.
 
@@ -35,7 +35,7 @@ class ThreatFoxClient:
 
     def _send_request(
         self, endpoint: str, method: str = "GET", data: Optional[Any] = None
-    ):
+    ) -> dict:
         """
         Internal method to send requests to the API.
 
@@ -68,6 +68,74 @@ class ThreatFoxClient:
             raise requests.HTTPError(response=response)
 
         return response.json()
+
+    def get_recent_iocs(self, days: int = 3) -> dict:
+        """
+        Get recent IOCs on ThreatFox.
+
+        :param days: Number of days to look back.
+        :return: Response from the server.
+        """
+        data = {"query": "get_iocs", "days": days}
+        response = self._send_request(endpoint="", method="POST", data=data)
+        return response
+
+    def get_ioc_by_id(self, ioc_id: str) -> dict:
+        """
+        Get an IOC by its ID.
+
+        :param ioc_id: ID of the IOC.
+        :return: Response from the server.
+        """
+        data = {"query": "ioc", "id": ioc_id}
+        response = self._send_request(endpoint="", method="POST", data=data)
+        return response
+
+    def search_iocs(self, search_term: str) -> dict:
+        """
+        Search for an IOC on ThreatFox.
+
+        :param search_term: The IOC you want to search for.
+        :return: Response from the server.
+        """
+        data = {"query": "search_ioc", "search_term": search_term}
+        response = self._send_request(endpoint="", method="POST", data=data)
+        return response
+
+    def search_iocs_by_file_hash(self, file_hash: str) -> dict:
+        """
+        Search for an IOC on ThreatFox.
+
+        :param file_hash: The file hash you want to search for.
+        :return: Response from the server.
+        """
+        data = {"query": "search_hash", "hash": file_hash}
+        response = self._send_request(endpoint="", method="POST", data=data)
+        return response
+
+    def search_iocs_by_tag(self, tag: str, limit: int = 100) -> dict:
+        """
+        Search for an IOC on ThreatFox.
+
+        :param tag: The tag you want to search for.
+        :param limit: The maximum number of results to return.
+        :return: Response from the server.
+        """
+        data = {"query": "taginfo", "tag": tag, "limit": limit}
+        response = self._send_request(endpoint="", method="POST", data=data)
+        return response
+
+    def search_iocs_by_malware(self, malware: str, limit: int = 100) -> dict:
+        """
+        Search for an IOC on ThreatFox.
+
+        :param malware: The malware you want to search for.
+        :param limit: The maximum number of results to return.
+        :return: Response from the server.
+        """
+        data = {"query": "malwareinfo", "malware": malware, "limit": limit}
+        response = self._send_request(endpoint="", method="POST", data=data)
+        return response
 
     def submit_ioc(
         self,
@@ -102,18 +170,7 @@ class ThreatFoxClient:
         response = self._send_request(endpoint="", method="POST", data=data)
         return response
 
-    def search_ioc(self, search_term: str):
-        """
-        Search for an IOC on ThreatFox.
-
-        :param search_term: The IOC you want to search for.
-        :return: Response from the server.
-        """
-        data = {"query": "search_ioc", "search_term": search_term}
-        response = self._send_request(endpoint="", method="POST", data=data)
-        return response
-
-    def get_label(self, malware: str, platform: Optional[str] = None):
+    def get_malware_label(self, malware: str, platform: Optional[str] = None):
         """
         Identify the malware name (label) on ThreatFox.
 
@@ -128,16 +185,32 @@ class ThreatFoxClient:
         response = self._send_request(endpoint="", method="POST", data=data)
         return response
 
-    def query_tag(self, tag: str, limit: int = 1000):
+    def get_malware_list(self):
         """
-        Query a tag on ThreatFox.
+        Get the list of malware names on ThreatFox.
 
-        :param tag: Tag you want to query.
-        :param limit: Maximum number of results to return.
         :return: Response from the server.
         """
-        data = {"query": "taginfo", "tag": tag, "limit": limit}
+        data = {"query": "malware_list"}
         response = self._send_request(endpoint="", method="POST", data=data)
         return response
 
-    # Add your method examples here...
+    def get_threat_types(self):
+        """
+        Get the list of threat types on ThreatFox.
+
+        :return: Response from the server.
+        """
+        data = {"query": "threat_types"}
+        response = self._send_request(endpoint="", method="POST", data=data)
+        return response
+
+    def get_tag_list(self):
+        """
+        Get the list of tags on ThreatFox.
+
+        :return: Response from the server.
+        """
+        data = {"query": "tag_list"}
+        response = self._send_request(endpoint="", method="POST", data=data)
+        return response
