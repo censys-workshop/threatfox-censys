@@ -2,6 +2,16 @@
 
 Threatfox Censys is a tool to query [Censys Search](https://search.censys.io/) for IP addresses and domains and then parses the JSON and submits the results to Threatfox.
 
+## Features
+
+- Create dynamic fingerprints for various IoCs
+  - Fingerprint file: [`fingerprints.yaml`](fingerprints.yaml)
+- Uses the Censys Search API
+- Submit IoCs to ThreatFox
+  - Links Censys Search in ThreatFox IoC reference
+  - Tags IoCs with `censys` and the autonomous system name
+- Uses a PostgreSQL database to store the IoCs submitted to ThreatFox
+
 ## Installation
 
 ### Prerequisites
@@ -82,4 +92,5 @@ Threatfox Censys is licensed under the [MIT](https://choosealicense.com/licenses
 - [ ] Add more tests.
 - [ ] Add more documentation.
 - [ ] Add better error handling.
+- [ ] Use redis for caching.
 <!-- Add your idea here -->
