@@ -25,6 +25,12 @@ You will need to install [poetry](https://python-poetry.org/) on Python 3.10.
 curl -sSL https://install.python-poetry.org | python3 -
 ```
 
+Clone the repository.
+
+```bash
+git clone https://github.com/censys-workshop/threatfox-censys.git
+```
+
 Then install the dependencies.
 
 ```bash
