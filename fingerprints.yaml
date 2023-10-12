@@ -55,13 +55,6 @@ malware_name: "win.risepro"
 confidence_level: 100
 tags: [C2]
 ---
-name: "NanoCore"
-censys_query: "services.software.product: NanoCore and not labels: tarpit"
-censys_virtual_hosts: false
-malware_name: "win.nanocore"
-confidence_level: 100
-tags: [C2]
----
 name: "ERMAC"
 censys_query: "services.software.product: ERMAC and not labels: tarpit"
 censys_virtual_hosts: false
