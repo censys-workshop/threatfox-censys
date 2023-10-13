@@ -1,6 +1,5 @@
 import logging
 from argparse import ArgumentParser, Namespace
-from ipaddress import IPv4Address
 
 from censys.common.version import __version__ as censys_version
 from censys.search import CensysHosts
@@ -16,7 +15,9 @@ from .fingerprint import (
 from .models import IoC
 from .settings import Settings
 from .threatfox import ThreatFoxClient
+from .utils import is_ipv4_address
 
+TIMEOUT = 45
 USER_AGENT = (
     f"censys-python/{censys_version} (ThreatfoxCensys;"
     " +https://github.com/censys-workshop/threatfox-censys)"
@@ -46,20 +47,6 @@ def parse_args() -> Namespace:
         help="Run database migrations.",
     )
     return parser.parse_args()
-
-
-def is_ipv4_address(ip_address: str) -> bool:
-    """
-    Check if a string is an IPv4 address.
-
-    :param ip_address: The string to check.
-    :return: True if the string is an IPv4 address, False otherwise.
-    """
-    try:
-        IPv4Address(ip_address)
-        return True
-    except ValueError:
-        return False
 
 
 def submit_ioc(
@@ -211,9 +198,12 @@ def log_threatfox_response_data(
     # Get the number of duplicated IoCs
     num_duplicated_iocs = len(threatfox_response_data.get("duplicated", []))
 
+    # Create the reward string
+    reward_str = f"Reward: {reward}" if reward > 0 else "No reward"
+
     # Log the response
     logging.info(
-        f"Submitted fingerprint {fingerprint.name} to ThreatFox. Reward: {reward}."
+        f"Submitted fingerprint {fingerprint.name} to ThreatFox. {reward_str}."
     )
     logging.debug(
         f"IoCs: {num_iocs} | Ignored: {num_ignored_iocs} | Duplicated:"
@@ -258,7 +248,7 @@ def main():
     threatfox_client = ThreatFoxClient(api_key=settings.THREATFOX_API_KEY)
 
     # Create a CensysHosts instance
-    censys_client = CensysHosts(user_agent=USER_AGENT)
+    censys_client = CensysHosts(user_agent=USER_AGENT, timeout=TIMEOUT)
 
     # Load fingerprints from YAML file
     fingerprints = load_fingerprints_from_yaml(args.fingerprints)
@@ -277,7 +267,7 @@ def main():
         logging.info(f"Searching Censys for fingerprint {fingerprint.name}...")
 
         # Gather the results
-        hosts = []
+        hosts: list[dict] = []
         for page in query_response:
             for host in page:
                 hosts.append(host)

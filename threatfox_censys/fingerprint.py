@@ -1,7 +1,7 @@
-from urllib.parse import quote_plus
-
 import yaml
 from pydantic import BaseModel, ValidationError
+
+from .utils import get_censys_search_link_from_query
 
 
 class Fingerprint(BaseModel):
@@ -12,23 +12,6 @@ class Fingerprint(BaseModel):
     malware_name: str
     confidence_level: int = 50
     tags: list[str] | None = None
-
-
-def get_censys_search_link_from_query(query: str, virtual_hosts: bool = False) -> str:
-    """
-    Get the Censys search URL from a fingerprint.
-
-    :param fingerprint: The fingerprint to get the Censys search URL from.
-    :return: The Censys search URL.
-    """
-    return (
-        "https://search.censys.io/search?resource=hosts&sort=RELEVANCE&per_page=25"
-        + "&virtual_hosts="
-        + ("INCLUDE" if virtual_hosts else "EXCLUDE")
-        + "&q="
-        + quote_plus(query)
-        + "&ref=threatfox"
-    )
 
 
 def get_censys_search_link_for_fingerprint(fingerprint: Fingerprint) -> str:
