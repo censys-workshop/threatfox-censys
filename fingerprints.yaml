@@ -71,14 +71,14 @@ tags: [C2, Covenant]
 ---
 name: "L3MON"
 censys_query: "services.software.product: L3MON and not labels: tarpit"
-censys_virtual_hosts: false
+censys_virtual_hosts: true
 malware_name: "unknown"
 confidence_level: 100
 tags: [C2, L3MON]
 ---
 name: "Mythic"
 censys_query: "services.software.product: Mythic and not labels: tarpit"
-censys_virtual_hosts: false
+censys_virtual_hosts: true
 malware_name: "unknown"
 confidence_level: 100
 tags: [C2, Mythic]
@@ -106,14 +106,14 @@ tags: [C2, "Artemis Rat"]
 ---
 name: "DarkGate"
 censys_query: "services.service_name: DARKGATE and not labels: tarpit"
-censys_virtual_hosts: false
+censys_virtual_hosts: true
 malware_name: "win.darkgate"
 confidence_level: 100
 tags: [C2, Downloader]
 ---
 name: "Cobalt Strike"
 censys_query: "services.service_name: COBALT_STRIKE and not labels: tarpit"
-censys_virtual_hosts: false
+censys_virtual_hosts: true
 malware_name: "win.cobalt_strike"
 confidence_level: 100
 tags: [C2]

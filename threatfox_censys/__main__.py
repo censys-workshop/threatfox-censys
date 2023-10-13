@@ -187,7 +187,7 @@ def log_threatfox_response_data(
         return
 
     # Get the reward
-    reward = threatfox_response_data.get("reward", 0)
+    reward = int(threatfox_response_data.get("reward", 0))
 
     # Get the number of IoCs
     num_iocs = len(threatfox_response_data.get("ok", []))
@@ -296,7 +296,7 @@ def main():
                 if name is None:
                     ip = host["ip"]
                     if not is_ipv4_address(ip):
-                        logging.warning(
+                        logging.debug(
                             f"IP {ip} is not a valid IPv4 address. Skipping..."
                         )
                         continue
