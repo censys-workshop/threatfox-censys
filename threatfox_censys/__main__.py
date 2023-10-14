@@ -1,9 +1,13 @@
 import logging
 from argparse import ArgumentParser, Namespace
+from enum import Enum
 
+import yaml
+from censys.common.exceptions import CensysException
 from censys.common.version import __version__ as censys_version
 from censys.search import CensysHosts
-from dotenv import load_dotenv
+from InquirerPy import prompt
+from InquirerPy.validator import EmptyInputValidator
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
@@ -12,11 +16,12 @@ from .fingerprint import (
     get_censys_search_link_from_query,
     load_fingerprints_from_yaml,
 )
-from .models import IoC
-from .settings import Settings
-from .threatfox import ThreatFoxClient
+from .models import Base, IoC
+from .settings import settings
+from .threatfox import ThreatFoxClient, log_threatfox_response_data
 from .utils import is_ipv4_address
 
+# Constants
 TIMEOUT = 45
 USER_AGENT = (
     f"censys-python/{censys_version} (ThreatfoxCensys;"
@@ -24,29 +29,44 @@ USER_AGENT = (
 )
 
 
-def parse_args() -> Namespace:
-    """
-    Parse the arguments.
+# Create the database engine
+engine = create_engine(settings.DATABASE_URL)
 
-    :return: The parsed arguments.
+# Create a ThreatFoxClient instance
+threatfox_client = ThreatFoxClient(api_key=settings.THREATFOX_API_KEY)
+
+# Create a CensysHosts instance
+censys_client = CensysHosts(
+    api_id=settings.CENSYS_API_ID,
+    api_secret=settings.CENSYS_API_SECRET,
+    user_agent=USER_AGENT,
+    timeout=TIMEOUT,
+)
+
+
+class IoCType(str, Enum):
     """
-    parser = ArgumentParser(
-        description="Submit IOCs from Censys to ThreatFox for rewards."
-    )
-    parser.add_argument(
-        "--fingerprints",
-        "-f",
-        type=str,
-        default="fingerprints.yaml",
-        help="The fingerprints YAML file to load.",
-    )
-    parser.add_argument(
-        "--database-migrations",
-        "-m",
-        action="store_true",
-        help="Run database migrations.",
-    )
-    return parser.parse_args()
+    IoC types.
+    """
+
+    IP_PORT = "ip:port"
+    DOMAIN = "domain"
+    URL = "url"  # Currently not supported by ThreatFox Censys
+
+
+def migrate_database(_: Namespace) -> None:
+    with Session(engine) as session:
+        # Create the tables
+        Base.metadata.create_all(bind=engine)
+
+        # Commit the session
+        session.commit()
+
+    # Log that we're done
+    logging.info("Database migrations complete.")
+
+    # Exit
+    return
 
 
 def submit_ioc(
@@ -54,7 +74,7 @@ def submit_ioc(
     threatfox_client: ThreatFoxClient,
     fingerprint: Fingerprint,
     ioc: str,
-    ioc_type: str,
+    ioc_type: IoCType,
     additional_tags: list[str] | None = None,
 ) -> dict | None:
     """
@@ -106,14 +126,14 @@ def submit_ioc(
 
     reference: str | None = None
     # If the IoC is an IP address, create the search link
-    if ioc_type == "ip:port":
+    if ioc_type == IoCType.IP_PORT:
         # Get the IP address
         ip_address = ioc.split(":")[0]
 
         # Create the reference
         reference = f"https://search.censys.io/hosts/{ip_address}"
     # If the IoC is a domain, create the search link
-    elif ioc_type == "domain":
+    elif ioc_type == IoCType.DOMAIN:
         # Create the query
         censys_query = f"name: {ioc}"
         # Create the reference
@@ -125,24 +145,13 @@ def submit_ioc(
     # Submit the IoC to ThreatFox
     threatfox_response = threatfox_client.submit_ioc(
         threat_type=fingerprint.threat_type,
-        ioc_type=ioc_type,
+        ioc_type=ioc_type.value,
         malware=fingerprint.malware_name,
         iocs=[ioc],
         confidence_level=fingerprint.confidence_level,
         reference=reference,
         tags=tags,
     )
-    # {
-    #     "query_status": "ok",
-    #     "data": {
-    #         "ok": [],
-    #         "ignored": [],
-    #         "duplicated": [
-    #             "1.1.1.1:2351",
-    #         ],
-    #         "reward": 0,
-    #     },
-    # }
 
     # Get the query status
     query_status = threatfox_response.get("query_status", "unknown")
@@ -152,7 +161,7 @@ def submit_ioc(
         # Create the IoC
         ioc_obj = IoC(
             ioc=ioc,
-            ioc_type=ioc_type,
+            ioc_type=ioc_type.value,
             threat_type=fingerprint.threat_type,
             submitted=True,
         )
@@ -173,83 +182,7 @@ def submit_ioc(
     return None
 
 
-def log_threatfox_response_data(
-    fingerprint: Fingerprint, threatfox_response_data: dict | None
-) -> None:
-    """
-    Log the ThreatFox response data.
-
-    :param fingerprint: The fingerprint.
-    :param threatfox_response_data: The ThreatFox response data.
-    """
-    # If the response data is None, return
-    if threatfox_response_data is None:
-        return
-
-    # Get the reward
-    reward = int(threatfox_response_data.get("reward", 0))
-
-    # Get the number of IoCs
-    num_iocs = len(threatfox_response_data.get("ok", []))
-
-    # Get the number of ignored IoCs
-    num_ignored_iocs = len(threatfox_response_data.get("ignored", []))
-
-    # Get the number of duplicated IoCs
-    num_duplicated_iocs = len(threatfox_response_data.get("duplicated", []))
-
-    # Create the reward string
-    reward_str = f"Reward: {reward}" if reward > 0 else "No reward"
-
-    # Log the response
-    logging.info(
-        f"Submitted fingerprint {fingerprint.name} to ThreatFox. {reward_str}."
-    )
-    logging.debug(
-        f"IoCs: {num_iocs} | Ignored: {num_ignored_iocs} | Duplicated:"
-        f" {num_duplicated_iocs}"
-    )
-
-
-def main():
-    # Parse the arguments
-    args = parse_args()
-
-    # Load environment variables from .env file
-    load_dotenv()
-
-    # Load settings from environment variables
-    settings = Settings()  # type: ignore[call-arg]
-
-    # Set the log level
-    logging.basicConfig(level=settings.LOGGING_LEVEL)
-
-    # Create the database engine
-    engine = create_engine(settings.DATABASE_URL.unicode_string())
-
-    # Run database migrations
-    if args.database_migrations:
-        from .models import Base
-
-        with Session(engine) as session:
-            # Create the tables
-            Base.metadata.create_all(bind=engine)
-
-            # Commit the session
-            session.commit()
-
-        # Log that we're done
-        logging.info("Database migrations complete.")
-
-        # Exit
-        return
-
-    # Create a ThreatFoxClient instance
-    threatfox_client = ThreatFoxClient(api_key=settings.THREATFOX_API_KEY)
-
-    # Create a CensysHosts instance
-    censys_client = CensysHosts(user_agent=USER_AGENT, timeout=TIMEOUT)
-
+def scan(args: Namespace) -> None:
     # Load fingerprints from YAML file
     fingerprints = load_fingerprints_from_yaml(args.fingerprints)
 
@@ -258,9 +191,14 @@ def main():
         # Get the virtual hosts
         virtual_hosts = "INCLUDE" if fingerprint.censys_virtual_hosts else "EXCLUDE"
 
+        # If we're not including tarpits, exclude them
+        censys_query = fingerprint.censys_query
+        if not args.include_tarpits:
+            censys_query += " and not labels: tarpit"
+
         # Search Censys
         query_response = censys_client.search(
-            fingerprint.censys_query, virtual_hosts=virtual_hosts, pages=-1
+            censys_query, virtual_hosts=virtual_hosts, pages=-1
         )
 
         # Log that we're searching Censys
@@ -268,9 +206,13 @@ def main():
 
         # Gather the results
         hosts: list[dict] = []
-        for page in query_response:
-            for host in page:
-                hosts.append(host)
+        try:
+            for page in query_response:
+                for host in page:
+                    hosts.append(host)
+        except CensysException as e:
+            logging.error(f"Error searching Censys: {e}")
+            continue
 
         # Log the number of results
         logging.info(f"Found {len(hosts)} results.")
@@ -311,7 +253,7 @@ def main():
                             threatfox_client,
                             fingerprint,
                             ip_port,
-                            "ip:port",
+                            IoCType.IP_PORT,
                             additional_tags=additional_tags,
                         )
                         log_threatfox_response_data(
@@ -324,10 +266,205 @@ def main():
                         threatfox_client,
                         fingerprint,
                         name,
-                        "domain",
+                        IoCType.DOMAIN,
                         additional_tags=additional_tags,
                     )
                     log_threatfox_response_data(fingerprint, threatfox_response_data)
+
+
+def create_fingerprint(args: Namespace) -> None:
+    # Get the malware list
+    malware_list = threatfox_client.get_malware_list()
+    malware_list_data: dict = malware_list.get("data", {})
+
+    # Parse the malware list
+    malware_names = []
+    for malware_name, malware_data in malware_list_data.items():
+        malware_printable = malware_data.get("malware_printable", None)
+        if malware_printable is not None:
+            malware_names.append(malware_printable)
+
+        malware_alias = malware_data.get("malware_alias", None)
+        if malware_alias is not None:
+            malware_names.append(malware_alias)
+
+        malware_names.append(malware_name)
+
+    # Create a function to transform the malware name
+    def transform_malware_name(result: str) -> str:
+        # If the result is in the malware names, return it
+        if result in malware_list_data:
+            return result
+
+        # If the result is not in the malware names, try to find it
+        for malware_name, malware_data in malware_list_data.items():
+            malware_printable = malware_data.get("malware_printable", None)
+            if malware_printable is not None and malware_printable == result:
+                return malware_name
+
+            malware_alias = malware_data.get("malware_alias", None)
+            if malware_alias is not None and malware_alias == result:
+                return malware_name
+
+        # If we can't find it, return the result
+        return "unknown"
+
+    # Create a function to validate the malware name is in the malware list
+    def validate_malware_name(result: str) -> bool:
+        if result == "unknown":
+            return True
+        return result in malware_names
+
+    # Create the questions
+    questions = [
+        {
+            "type": "input",
+            "message": "Fingerprint Name:",
+            "validate": EmptyInputValidator(),
+            "mandatory": True,
+        },
+        {
+            "type": "fuzzy",
+            "message": "Malware Name:",
+            "choices": malware_names,
+            "filter": transform_malware_name,
+            "validate": validate_malware_name,
+            "transformer": lambda result: result
+            if result != "unknown" and result is not None
+            else "Unknown malware",
+            "mandatory": True,
+        },
+        {
+            "type": "input",
+            "message": "Censys Query:",
+            "validate": EmptyInputValidator(),
+            "mandatory": True,
+        },
+        {
+            "type": "confirm",
+            "message": "Include virtual hosts?",
+            "default": False,
+            "mandatory": False,
+        },
+        {
+            "type": "number",
+            "message": "Confidence Level:",
+            "default": 50,
+            "min_allowed": 0,
+            "max_allowed": 100,
+            "validate": EmptyInputValidator(),
+            "mandatory": True,
+        },
+        {
+            "type": "input",
+            "message": "Tags:",
+            "instruction": "Comma-separated list of tags.",
+            "validate": EmptyInputValidator(),
+            "mandatory": False,
+            "default": "C2",
+            "filter": lambda result: result.split(","),
+        },
+    ]
+
+    # Prompt the user
+    results = prompt(questions=questions)
+
+    # Create the fingerprint
+    fingerprint = Fingerprint(  # type: ignore[arg-type]
+        name=results[0],
+        malware_name=results[1],
+        censys_query=results[2],
+        censys_virtual_hosts=results[3],
+        confidence_level=results[4],
+        tags=results[5],
+    )
+
+    # Dump the fingerprint
+    fingerprint_dict = fingerprint.model_dump(exclude=["threat_type"])
+
+    # Print the fingerprint as YAML
+    print("Add the following fingerprint to fingerprints.yaml:\n---")
+    print(yaml.dump(fingerprint_dict, sort_keys=False, default_flow_style=None))
+
+
+def parse_args() -> Namespace:
+    """
+    Parse the arguments.
+
+    :return: The parsed arguments.
+    """
+    parser = ArgumentParser(
+        prog="threatfox-censys",
+        description="Submit IOCs from Censys to ThreatFox for rewards.",
+    )
+
+    def print_help(_: Namespace) -> None:
+        parser.print_help()
+
+    parser.add_argument(
+        "--log-level",
+        "-l",
+        type=str,
+        default="INFO",
+        help="The logging level. (Default: INFO)",
+    )
+    parser.set_defaults(func=print_help)
+
+    # Subparsers
+    subparsers = parser.add_subparsers(
+        help="The command to run.",
+    )
+
+    # Database migrations
+    migrations_parser = subparsers.add_parser(
+        "database-migrations",
+        help="Run database migrations and exit.",
+    )
+    migrations_parser.set_defaults(func=migrate_database)
+
+    # Scan
+    scan_parser = subparsers.add_parser(
+        "scan",
+        help="Scan Censys and submit the results to ThreatFox.",
+    )
+    scan_parser.add_argument(
+        "--fingerprints",
+        "-f",
+        type=str,
+        default="fingerprints.yaml",
+        help="The fingerprints YAML file to load. (Default: fingerprints.yaml)",
+    )
+    scan_parser.add_argument(
+        "--include-tarpits",
+        "-t",
+        action="store_true",
+        help=(
+            "Include tarpits in the results. Please note that tarpits may increase"
+            " the number of false positives. (Default: False)"
+        ),
+    )
+    scan_parser.set_defaults(func=scan)
+
+    # Create fingerprint
+    create_fingerprint_parser = subparsers.add_parser(
+        "create-fingerprint",
+        help="Create a fingerprint.",
+    )
+    create_fingerprint_parser.set_defaults(func=create_fingerprint)
+
+    # Parse the arguments
+    return parser.parse_args()
+
+
+def main():
+    # Parse the arguments
+    args = parse_args()
+
+    # Set the log level
+    logging.basicConfig(level=args.log_level)
+
+    # Run the command
+    args.func(args)
 
 
 if __name__ == "__main__":

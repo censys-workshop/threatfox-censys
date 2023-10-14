@@ -5,9 +5,11 @@ Threatfox Censys is a tool to query [Censys Search](https://search.censys.io/) f
 ## Features
 
 - Create dynamic fingerprints for various IoCs
+  - Create a fingerprint using the `create-fingerprint` command
   - Fingerprint file: [`fingerprints.yaml`](fingerprints.yaml)
 - Uses the Censys Search API
 - Submit IoCs to ThreatFox
+  - Submit IoCs using the `scan` command
   - Links Censys Search in ThreatFox IoC reference
   - Tags IoCs with `censys` and the autonomous system name
 - Uses a PostgreSQL database to store the IoCs submitted to ThreatFox
@@ -46,13 +48,25 @@ cp .env.example .env
 Then you will need to run the database migrations.
 
 ```bash
-poetry run python -m threatfox_censys --database-migrations
+poetry run threatfox-censys database-migrations
 ```
 
 ## Usage
 
+### Scan
+
+Scan Censys Search for IoCs and submit them to ThreatFox.
+
 ```bash
-poetry run python -m threatfox_censys
+poetry run threatfox-censys scan
+```
+
+### Create Fingerprint
+
+Prompt the user to create a fingerprint for an IoC.
+
+```bash
+poetry run threatfox-censys create-fingerprint
 ```
 
 ## Contributing
@@ -95,8 +109,5 @@ Threatfox Censys is licensed under the [MIT](https://choosealicense.com/licenses
 ## TODO
 
 - [ ] Add more fingerprint.
-- [ ] Add more tests.
 - [ ] Add more documentation.
-- [ ] Add better error handling.
-- [ ] Use redis for caching.
 <!-- Add your idea here -->

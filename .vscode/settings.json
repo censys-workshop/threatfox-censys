@@ -1,5 +1,14 @@
 {
-  "cSpell.words": ["Threatfox"],
+  "cSpell.words": [
+    "Censys",
+    "dotenv",
+    "iocs",
+    "jarm",
+    "pydantic",
+    "tarpit",
+    "tarpits",
+    "Threatfox"
+  ],
   "editor.defaultFormatter": "ms-python.black-formatter",
   "isort.check": true,
   "[python]": {

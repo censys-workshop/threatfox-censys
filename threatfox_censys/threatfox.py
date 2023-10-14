@@ -3,6 +3,8 @@ from typing import Any
 
 import requests
 
+from .fingerprint import Fingerprint
+
 
 class ThreatFoxClient:
     """
@@ -214,3 +216,41 @@ class ThreatFoxClient:
         data = {"query": "tag_list"}
         response = self._send_request(endpoint="", method="POST", data=data)
         return response
+
+
+def log_threatfox_response_data(
+    fingerprint: Fingerprint, threatfox_response_data: dict | None
+) -> None:
+    """
+    Log the ThreatFox response data.
+
+    :param fingerprint: The fingerprint.
+    :param threatfox_response_data: The ThreatFox response data.
+    """
+    # If the response data is None, return
+    if threatfox_response_data is None:
+        return
+
+    # Get the reward
+    reward = int(threatfox_response_data.get("reward", 0))
+
+    # Get the number of IoCs
+    num_iocs = len(threatfox_response_data.get("ok", []))
+
+    # Get the number of ignored IoCs
+    num_ignored_iocs = len(threatfox_response_data.get("ignored", []))
+
+    # Get the number of duplicated IoCs
+    num_duplicated_iocs = len(threatfox_response_data.get("duplicated", []))
+
+    # Create the reward string
+    reward_str = f"Reward: {reward}" if reward > 0 else "No reward"
+
+    # Log the response
+    logging.info(
+        f"Submitted fingerprint {fingerprint.name} to ThreatFox. {reward_str}."
+    )
+    logging.debug(
+        f"IoCs: {num_iocs} | Ignored: {num_ignored_iocs} | Duplicated:"
+        f" {num_duplicated_iocs}"
+    )

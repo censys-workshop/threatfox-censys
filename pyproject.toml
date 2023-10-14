@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "threatfox-censys"
-version = "0.1.1"
+version = "0.1.2"
 description = "Threatfox Censys is a tool to query Censys Search for IP addresses and domains and then parses the JSON and submits the results to Threatfox."
 authors = ["Aidan Holland <aidan@censys.com>"]
 license = "MIT"
@@ -16,18 +16,21 @@ requests = "*"
 python-dotenv = "^1.0.0"
 pydantic = "^2.4.2"
 pyyaml = "^6.0.1"
-sqlalchemy = "^2.0.21"
+sqlalchemy = "^2.0.22"
 pydantic-settings = "^2.0.3"
 psycopg2 = "^2.9.9"
+inquirerpy = "^0.3.4"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.9.1"
 flake8 = "^6.1.0"
 isort = "^5.12.0"
 pytest = "^7.4.2"
+pytest-cov = "^4.1.0"
 pyupgrade = "^3.15.0"
+responses = "^0.23.3"
 types-pyyaml = "^6.0.12.12"
-types-requests = "^2.31.0.8"
+types-requests = "^2.31.0.9"
 
 [build-system]
 requires = ["poetry-core"]
@@ -37,3 +40,7 @@ build-backend = "poetry.core.masonry.api"
 profile = "black"
 known_first_party = "threatfox_censys"
 known_third_party = "censys,requests,pydantic,pyyaml,pytest,dotenv"
+
+[tool.coverage.run]
+# I don't really want to write tests for the CLI or Threatfox API
+omit = ["threatfox_censys/threatfox.py"]

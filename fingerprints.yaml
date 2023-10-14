@@ -1,132 +1,132 @@
 ---
 name: "PoshC2"
-censys_query: "services.software.product: PoshC2 and not labels: tarpit"
+censys_query: "services.software.product: PoshC2"
 censys_virtual_hosts: false
 malware_name: "win.poshc2"
 confidence_level: 100
 tags: [C2]
 ---
 name: "Havoc"
-censys_query: "services.software.product: Havoc and not labels: tarpit"
+censys_query: "services.software.product: Havoc"
 censys_virtual_hosts: true
 malware_name: "win.havoc"
 confidence_level: 100
 tags: [C2]
 ---
 name: "AsyncRAT"
-censys_query: "services.software.product: AsyncRAT and not labels: tarpit"
+censys_query: "services.software.product: AsyncRAT"
 censys_virtual_hosts: true
 malware_name: "win.asyncrat"
 confidence_level: 100
 tags: [C2, RAT]
 ---
 name: "Quasar RAT"
-censys_query: "services.software.product: Quasar and not labels: tarpit"
+censys_query: "services.software.product: Quasar"
 censys_virtual_hosts: true
 malware_name: "win.quasar_rat"
 confidence_level: 100
 tags: [C2, RAT]
 ---
 name: "Orcus RAT"
-censys_query: "services.software.product: Orcus and not labels: tarpit"
+censys_query: "services.software.product: Orcus"
 censys_virtual_hosts: false
 malware_name: "win.orcus_rat"
 confidence_level: 100
 tags: [C2, RAT]
 ---
 name: "DcRat"
-censys_query: "services.software.product: DcRat and not labels: tarpit"
+censys_query: "services.software.product: DcRat"
 censys_virtual_hosts: false
 malware_name: "win.dcrat"
 confidence_level: 100
 tags: [C2, RAT]
 ---
 name: "DeimosC2"
-censys_query: "services.software.product: DeimosC2 and not labels: tarpit"
+censys_query: "services.software.product: DeimosC2"
 censys_virtual_hosts: true
 malware_name: "win.deimos_c2"
 confidence_level: 100
 tags: [C2]
 ---
 name: "RisePro"
-censys_query: "services.software.product: RisePro and not labels: tarpit"
+censys_query: "services.software.product: RisePro"
 censys_virtual_hosts: false
 malware_name: "win.risepro"
 confidence_level: 100
 tags: [C2]
 ---
 name: "ERMAC"
-censys_query: "services.software.product: ERMAC and not labels: tarpit"
+censys_query: "services.software.product: ERMAC"
 censys_virtual_hosts: false
 malware_name: "apk.ermac"
 confidence_level: 100
 tags: [C2]
 ---
 name: "Covenant"
-censys_query: "services.software.product: Covenant and not labels: tarpit"
+censys_query: "services.software.product: Covenant"
 censys_virtual_hosts: false
 malware_name: "unknown"
 confidence_level: 100
 tags: [C2, Covenant]
 ---
 name: "L3MON"
-censys_query: "services.software.product: L3MON and not labels: tarpit"
+censys_query: "services.software.product: L3MON"
 censys_virtual_hosts: true
 malware_name: "unknown"
 confidence_level: 100
 tags: [C2, L3MON]
 ---
 name: "Mythic"
-censys_query: "services.software.product: Mythic and not labels: tarpit"
+censys_query: "services.software.product: Mythic"
 censys_virtual_hosts: true
 malware_name: "unknown"
 confidence_level: 100
 tags: [C2, Mythic]
 ---
 name: "Supershell"
-censys_query: "services: (software.product: Supershell or http.response.html_title=`Supershell - 登录`) and not labels: tarpit"
+censys_query: "services: (software.product: Supershell or http.response.html_title=`Supershell - 登录`)"
 censys_virtual_hosts: true
 malware_name: "unknown"
 confidence_level: 100
 tags: [C2, Supershell]
 ---
 name: "BlackDolphin"
-censys_query: "services: (software.product: BlackDolphin or http.response.html_title=`BlackDolphin`) and not labels: tarpit"
+censys_query: "services: (software.product: BlackDolphin or http.response.html_title=`BlackDolphin`)"
 censys_virtual_hosts: true
 malware_name: "unknown"
 confidence_level: 100
 tags: [C2, BlackDolphin]
 ---
 name: "Artemis Rat"
-censys_query: "services: (software.product: 'Artemis Rat' and http.response.html_title=`ARTEMIS RAT`) and not labels: tarpit"
+censys_query: "services: (software.product: 'Artemis Rat' and http.response.html_title=`ARTEMIS RAT`)"
 censys_virtual_hosts: false
 malware_name: "unknown"
 confidence_level: 100
 tags: [C2, "Artemis Rat"]
 ---
 name: "DarkGate"
-censys_query: "services.service_name: DARKGATE and not labels: tarpit"
+censys_query: "services.service_name: DARKGATE"
 censys_virtual_hosts: true
 malware_name: "win.darkgate"
 confidence_level: 100
 tags: [C2, Downloader]
 ---
 name: "Cobalt Strike"
-censys_query: "services.service_name: COBALT_STRIKE and not labels: tarpit"
+censys_query: "services.service_name: COBALT_STRIKE"
 censys_virtual_hosts: true
 malware_name: "win.cobalt_strike"
 confidence_level: 100
 tags: [C2]
 ---
 name: "Gh0st RAT"
-censys_query: "services.banner=`Gh0st` and not labels: tarpit"
+censys_query: "services.banner=`Gh0st`"
 censys_virtual_hosts: false
 malware_name: "win.ghost_rat"
 confidence_level: 75
 tags: [C2, RAT]
 ---
 name: "Sliver"
-censys_query: "services: (tls.certificates.leaf_data.pubkey_bit_size: 2048 and tls.certificates.leaf_data.subject.organization: /(ACME|Partners|Tech|Cloud|Synergy|Test|Debug)? ?(co|llc|inc|corp|ltd)?/ and jarm.fingerprint: 3fd21b20d00000021c43d21b21b43d41226dd5dfc615dd4a96265559485910 and tls.certificates.leaf_data.subject.country: US and tls.certificates.leaf_data.subject.postal_code: /<1001-9999>/) or services: (jarm.fingerprint: 00000000000000000043d43d00043de2a97eabb398317329f027c66e4c1b01 and port: 31337) and not labels: tarpit"
+censys_query: "services: (tls.certificates.leaf_data.pubkey_bit_size: 2048 and tls.certificates.leaf_data.subject.organization: /(ACME|Partners|Tech|Cloud|Synergy|Test|Debug)? ?(co|llc|inc|corp|ltd)?/ and jarm.fingerprint: 3fd21b20d00000021c43d21b21b43d41226dd5dfc615dd4a96265559485910 and tls.certificates.leaf_data.subject.country: US and tls.certificates.leaf_data.subject.postal_code: /<1001-9999>/) or services: (jarm.fingerprint: 00000000000000000043d43d00043de2a97eabb398317329f027c66e4c1b01 and port: 31337)"
 censys_virtual_hosts: false
 malware_name: "win.sliver"
 confidence_level: 90

@@ -1,30 +1,29 @@
-from pydantic import Field, PostgresDsn
-from pydantic_settings import BaseSettings
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
     """Settings for the application."""
 
-    # Logging Level
-    LOGGING_LEVEL: int | str = Field(
-        title="Logging Level", env="LOGGING_LEVEL", default="INFO"
-    )
-
     # Censys Search API ID
-    CENSYS_API_ID: str | None = Field(
-        title="Censys Search API ID", env="CENSYS_API_ID", default=None
-    )
+    CENSYS_API_ID: str | None = Field(title="Censys Search API ID", default=None)
 
     # Censys Search API Secret
     CENSYS_API_SECRET: str | None = Field(
-        title="Censys Search API Secret", env="CENSYS_API_SECRET", default=None
+        title="Censys Search API Secret", default=None
     )
 
     # ThreatFox API Key
-    THREATFOX_API_KEY: str = Field(title="ThreatFox API Key", env="THREATFOX_API_KEY")
+    THREATFOX_API_KEY: str = Field(title="ThreatFox API Key")
 
     # Database Config
-    DATABASE_URL: PostgresDsn = Field(
+    DATABASE_URL: str = Field(
         title="Database URL",
-        env="DATABASE_URL",
     )
+
+    model_config = SettingsConfigDict(
+        env_file=".env", env_file_encoding="utf-8", case_sensitive=False
+    )
+
+
+settings = Settings()  # type: ignore[call-arg]

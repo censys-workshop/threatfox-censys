@@ -1,0 +1,6 @@
+- name: Test
+  censys_query: ip:
+    malware_name: Test
+    confidence_level: 50
+    tags:
+      - test
