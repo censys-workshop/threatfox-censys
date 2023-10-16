@@ -369,14 +369,32 @@ def create_fingerprint(args: Namespace) -> None:
     # Prompt the user
     results = prompt(questions=questions)
 
+    # Get the name
+    name: str = results[0]
+
+    # Get the malware name
+    malware_name: str = results[1]
+
+    # Get the Censys query
+    censys_query: str = results[2]
+
+    # Get the virtual hosts
+    censys_virtual_hosts: bool = results[3]
+
+    # Get the confidence level
+    confidence_level: int = results[4]
+
+    # Get the tags
+    tags: list[str] = results[5]
+
     # Create the fingerprint
-    fingerprint = Fingerprint(  # type: ignore[arg-type]
-        name=results[0],
-        malware_name=results[1],
-        censys_query=results[2],
-        censys_virtual_hosts=results[3],
-        confidence_level=results[4],
-        tags=results[5],
+    fingerprint = Fingerprint(
+        name=name,
+        malware_name=malware_name,
+        censys_query=censys_query,
+        censys_virtual_hosts=censys_virtual_hosts,
+        confidence_level=confidence_level,
+        tags=tags,
     )
 
     # Dump the fingerprint
