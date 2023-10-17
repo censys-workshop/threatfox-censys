@@ -125,6 +125,13 @@ malware_name: win.blacknet_rat
 confidence_level: 100
 tags: [C2, RAT]
 ---
+name: Spynote
+censys_query: services.http.response.html_title="BABYEON"
+censys_virtual_hosts: true
+malware_name: unknown
+confidence_level: 100
+tags: [C2, Spynote]
+---
 name: "DarkGate"
 censys_query: "services.service_name: DARKGATE"
 censys_virtual_hosts: true
