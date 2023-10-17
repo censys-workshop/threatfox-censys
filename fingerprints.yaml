@@ -104,28 +104,28 @@ malware_name: "unknown"
 confidence_level: 100
 tags: [C2, "Artemis Rat"]
 ---
-name: NimPlant
+name: "NimPlant"
 censys_query: 'services.http.response.headers.Server: "NimPlant C2 Server"'
 censys_virtual_hosts: true
 malware_name: win.nimplant
 confidence_level: 100
 tags: [C2]
 ---
-name: Gotham Stealer
+name: "Gotham Stealer"
 censys_query: 'services.http.response.html_title: "Gotham Stealer"'
 censys_virtual_hosts: true
 malware_name: unknown
 confidence_level: 100
 tags: [C2, stealer, GothamStealer]
 ---
-name: BlackNET
+name: "BlackNET"
 censys_query: 'services.http.response.html_title: "BlackNET - Login"'
 censys_virtual_hosts: true
 malware_name: win.blacknet_rat
 confidence_level: 100
 tags: [C2, RAT]
 ---
-name: Spynote
+name: "Spynote"
 censys_query: services.http.response.html_title="BABYEON"
 censys_virtual_hosts: true
 malware_name: unknown
@@ -152,6 +152,14 @@ censys_virtual_hosts: false
 malware_name: "win.ghost_rat"
 confidence_level: 75
 tags: [C2, RAT]
+---
+name: "Pikabot"
+censys_query: 'services: (jarm.fingerprint="21d19d00021d21d21c21d19d21d21dd188f9fdeea4d1b361be3a6ec494b2d2"
+  and port: 5000)'
+censys_virtual_hosts: false
+malware_name: win.pikabot
+confidence_level: 75
+tags: [C2]
 ---
 name: "Sliver"
 censys_query: "services: (tls.certificates.leaf_data.pubkey_bit_size: 2048 and tls.certificates.leaf_data.subject.organization: /(ACME|Partners|Tech|Cloud|Synergy|Test|Debug)? ?(co|llc|inc|corp|ltd)?/ and jarm.fingerprint: 3fd21b20d00000021c43d21b21b43d41226dd5dfc615dd4a96265559485910 and tls.certificates.leaf_data.subject.country: US and tls.certificates.leaf_data.subject.postal_code: /<1001-9999>/) or services: (jarm.fingerprint: 00000000000000000043d43d00043de2a97eabb398317329f027c66e4c1b01 and port: 31337)"
