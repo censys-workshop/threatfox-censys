@@ -104,6 +104,20 @@ malware_name: "unknown"
 confidence_level: 100
 tags: [C2, "Artemis Rat"]
 ---
+name: NimPlant
+censys_query: 'services.http.response.headers.Server: "NimPlant C2 Server"'
+censys_virtual_hosts: true
+malware_name: win.nimplant
+confidence_level: 100
+tags: [C2]
+---
+name: Gotham Stealer
+censys_query: 'services.http.response.html_title: "Gotham Stealer"'
+censys_virtual_hosts: true
+malware_name: unknown
+confidence_level: 100
+tags: [C2, stealer, GothamStealer]
+---
 name: "DarkGate"
 censys_query: "services.service_name: DARKGATE"
 censys_virtual_hosts: true
