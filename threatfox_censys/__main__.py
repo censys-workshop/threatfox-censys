@@ -186,6 +186,28 @@ def scan(args: Namespace) -> None:
     # Load fingerprints from YAML file
     fingerprints = load_fingerprints_from_yaml(args.fingerprints)
 
+    # If the user wants to include tarpits, make them confirm
+    if args.include_tarpits:
+        # Create the questions
+        questions = [
+            {
+                "type": "confirm",
+                "message": (
+                    "Are you sure you want to include tarpits? Please note that"
+                    " tarpits will increase the number of false positives."
+                ),
+                "default": False,
+                "mandatory": True,
+            }
+        ]
+
+        # Prompt the user
+        results = prompt(questions=questions)
+
+        # If the user does not want to include tarpits, exit
+        if not results[0]:
+            return
+
     # For each fingerprint, search Censys and submit the results to ThreatFox
     for fingerprint in fingerprints:
         # Get the virtual hosts
@@ -329,9 +351,11 @@ def create_fingerprint(args: Namespace) -> None:
             "choices": malware_names,
             "filter": transform_malware_name,
             "validate": validate_malware_name,
-            "transformer": lambda result: result
-            if result != "unknown" and result is not None
-            else "Unknown malware",
+            "transformer": lambda result: (
+                result
+                if result != "unknown" and result is not None
+                else "Unknown malware"
+            ),
             "mandatory": True,
         },
         {
