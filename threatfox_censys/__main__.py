@@ -182,7 +182,7 @@ def submit_ioc(
     return None
 
 
-def scan(args: Namespace) -> None:
+def scan(args: Namespace) -> int:
     # Load fingerprints from YAML file
     fingerprints = load_fingerprints_from_yaml(args.fingerprints)
 
@@ -206,7 +206,7 @@ def scan(args: Namespace) -> None:
 
         # If the user does not want to include tarpits, exit
         if not results[0]:
-            return
+            return 0
 
     # For each fingerprint, search Censys and submit the results to ThreatFox
     for fingerprint in fingerprints:
@@ -293,8 +293,11 @@ def scan(args: Namespace) -> None:
                     )
                     log_threatfox_response_data(fingerprint, threatfox_response_data)
 
+    # Return 0
+    return 0
 
-def create_fingerprint(args: Namespace) -> None:
+
+def create_fingerprint(args: Namespace) -> int:
     # Get the malware list
     malware_list = threatfox_client.get_malware_list()
     malware_list_data: dict = malware_list.get("data", {})
@@ -391,7 +394,10 @@ def create_fingerprint(args: Namespace) -> None:
     ]
 
     # Prompt the user
-    results = prompt(questions=questions)
+    try:
+        results = prompt(questions=questions)
+    except KeyboardInterrupt:
+        return 0
 
     # Get the name
     name: str = results[0]
@@ -427,6 +433,9 @@ def create_fingerprint(args: Namespace) -> None:
     # Print the fingerprint as YAML
     print("Add the following fingerprint to fingerprints.yaml:\n---")
     print(yaml.dump(fingerprint_dict, sort_keys=False, default_flow_style=None))
+
+    # Return 0
+    return 0
 
 
 def parse_args() -> Namespace:
@@ -506,12 +515,12 @@ def main():
     logging.basicConfig(level=args.log_level)
 
     # Run the command
-    args.func(args)
+    try:
+        code = args.func(args)
+        exit(code)
+    except KeyboardInterrupt:
+        exit(0)
 
 
 if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt:
-        print("Exiting...")
-        pass
+    main()
