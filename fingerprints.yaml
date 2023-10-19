@@ -83,6 +83,13 @@ malware_name: "unknown"
 confidence_level: 100
 tags: [C2, Mythic]
 ---
+name: "BitRAT"
+censys_query: 'services.software.product: BitRAT'
+censys_virtual_hosts: true
+malware_name: "win.bit_rat"
+confidence_level: 100
+tags: [C2, RAT]
+---
 name: "Supershell"
 censys_query: "services: (software.product: Supershell or http.response.html_title=`Supershell - 登录`)"
 censys_virtual_hosts: true
