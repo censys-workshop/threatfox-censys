@@ -105,7 +105,7 @@ confidence_level: 100
 tags: [C2, BlackDolphin]
 ---
 name: "Artemis Rat"
-censys_query: "services: (software.product: 'Artemis Rat' and http.response.html_title=`ARTEMIS RAT`)"
+censys_query: "services: (software.product: 'Artemis Rat' or http.response.html_title=`ARTEMIS RAT`)"
 censys_virtual_hosts: false
 malware_name: "unknown"
 confidence_level: 100
@@ -163,7 +163,7 @@ confidence_level: 90
 tags: [C2]
 ---
 name: "VenomRAT"
-censys_query: 'services: (tls.certificates.leaf_data.issuer_dn: {"CN=VenomRAT Server", "O=VenomRAT By "} or tls.certificates.leaf_data.subject_dn="CN=VenomRAT")'
+censys_query: 'services: (software.product: "VenomRAT" or tls.certificates.leaf_data.issuer_dn: {"CN=VenomRAT Server", "O=VenomRAT By "} or tls.certificates.leaf_data.subject_dn="CN=VenomRAT")'
 censys_virtual_hosts: true
 malware_name: "win.venom"
 confidence_level: 100
