@@ -84,7 +84,7 @@ confidence_level: 100
 tags: [C2, Mythic]
 ---
 name: "BitRAT"
-censys_query: 'services.software.product: BitRAT'
+censys_query: "services.software.product: BitRAT"
 censys_virtual_hosts: true
 malware_name: "win.bit_rat"
 confidence_level: 100
@@ -161,7 +161,8 @@ confidence_level: 75
 tags: [C2, RAT]
 ---
 name: "Pikabot"
-censys_query: 'services: (jarm.fingerprint="21d19d00021d21d21c21d19d21d21dd188f9fdeea4d1b361be3a6ec494b2d2"
+censys_query:
+  'services: (jarm.fingerprint="21d19d00021d21d21c21d19d21d21dd188f9fdeea4d1b361be3a6ec494b2d2"
   and port: 5000)'
 censys_virtual_hosts: false
 malware_name: "win.pikabot"
@@ -174,4 +175,11 @@ censys_virtual_hosts: false
 malware_name: "win.sliver"
 confidence_level: 90
 tags: [C2]
+---
+name: "VenomRAT"
+censys_query: 'services: (tls.certificates.leaf_data.subject.common_name: "VenomRAT" or tls.certificates.leaf_data.issuer.common_name: "VenomRAT Server" or tls.certificates.leaf_data.issuer.organization: "VenomRAT By qwqdanchun")'
+censys_virtual_hosts: true
+malware_name: "win.venom"
+confidence_level: 100
+tags: [C2, RAT]
 ---
