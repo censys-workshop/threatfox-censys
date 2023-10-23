@@ -1,9 +1,14 @@
 import logging
 from typing import Any
 
+import backoff
 import requests
 
 from .fingerprint import Fingerprint
+
+
+def fatal_code(e: requests.exceptions.RequestException) -> bool:
+    return 400 <= e.response.status_code < 500
 
 
 class ThreatFoxClient:
@@ -35,6 +40,12 @@ class ThreatFoxClient:
         self.timeout = timeout
         self.headers = {"API-KEY": self.api_key, "Accept": "application/json"}
 
+    @backoff.on_exception(
+        backoff.expo,
+        requests.exceptions.RequestException,
+        max_time=60,
+        giveup=fatal_code,
+    )
     def _send_request(
         self, endpoint: str, method: str = "GET", data: Any | None = None
     ) -> dict:
