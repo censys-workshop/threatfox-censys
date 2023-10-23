@@ -80,13 +80,13 @@ uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
 name = "censys"
-version = "2.2.7"
+version = "2.2.8"
 description = "An easy-to-use and lightweight API wrapper for Censys APIs (censys.io)."
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "censys-2.2.7-py3-none-any.whl", hash = "sha256:500d31bbb0440d0d7f6feb2bcb6666fa041d94e648a72beee37d878c39b16101"},
-    {file = "censys-2.2.7.tar.gz", hash = "sha256:abec858e5be89c45a60477bd7e51412fee7f55917325b11c3cd970298de3e2bd"},
+    {file = "censys-2.2.8-py3-none-any.whl", hash = "sha256:6a99034f19bf79221f0952b4cf27a41da40b6af617c58dc4f8967e0e54e03168"},
+    {file = "censys-2.2.8.tar.gz", hash = "sha256:e3c6d1e0715f36630a0c52fc2a837849b9d5ffbd6a1f6648e81b1b5a09b7731c"},
 ]
 
 [package.dependencies]
@@ -1166,4 +1166,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "883abfbed3553143311c22a0ff9e3745370132f5e2142e3b5873d97437f95ba4"
+content-hash = "f330a880f57e1529584f12dee98d3b5d41c42fd02abf7fe73de14af2052b1496"
