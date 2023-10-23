@@ -139,20 +139,6 @@ malware_name: "apk.spynote"
 confidence_level: 100
 tags: [C2]
 ---
-name: "DarkGate"
-censys_query: "services.service_name: DARKGATE"
-censys_virtual_hosts: true
-malware_name: "win.darkgate"
-confidence_level: 100
-tags: [C2, Downloader]
----
-name: "Cobalt Strike"
-censys_query: "services.service_name: COBALT_STRIKE"
-censys_virtual_hosts: true
-malware_name: "win.cobalt_strike"
-confidence_level: 100
-tags: [C2]
----
 name: "Gh0st RAT"
 censys_query: "services.banner=`Gh0st`"
 censys_virtual_hosts: false
@@ -177,9 +163,23 @@ confidence_level: 90
 tags: [C2]
 ---
 name: "VenomRAT"
-censys_query: 'services: (tls.certificates.leaf_data.subject.common_name: "VenomRAT" or tls.certificates.leaf_data.issuer.common_name: "VenomRAT Server" or tls.certificates.leaf_data.issuer.organization: "VenomRAT By qwqdanchun")'
+censys_query: 'services: (tls.certificates.leaf_data.issuer_dn: {"CN=VenomRAT Server", "O=VenomRAT By "} or tls.certificates.leaf_data.subject_dn="CN=VenomRAT")'
 censys_virtual_hosts: true
 malware_name: "win.venom"
 confidence_level: 100
 tags: [C2, RAT]
+---
+name: "DarkGate"
+censys_query: "services.service_name: DARKGATE"
+censys_virtual_hosts: true
+malware_name: "win.darkgate"
+confidence_level: 100
+tags: [C2, Downloader]
+---
+name: "Cobalt Strike"
+censys_query: "services.service_name: COBALT_STRIKE"
+censys_virtual_hosts: true
+malware_name: "win.cobalt_strike"
+confidence_level: 100
+tags: [C2]
 ---
