@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "threatfox-censys"
-version = "0.1.2"
+version = "0.1.3"
 description = "Threatfox Censys is a tool to query Censys Search for IP addresses and domains and then parses the JSON and submits the results to Threatfox."
 authors = ["Aidan Holland <aidan@censys.com>"]
 license = "MIT"
