@@ -12,6 +12,11 @@ total_reward = 0
 
 
 def fatal_code(e: requests.exceptions.RequestException) -> bool:
+    assert isinstance(e, requests.exceptions.RequestException)
+    assert e.response is not None
+    assert isinstance(e.response, requests.Response)
+    assert e.response.status_code is not None
+    assert isinstance(e.response.status_code, int)
     return 400 <= e.response.status_code < 500
 
 
@@ -48,7 +53,7 @@ class ThreatFoxClient:
         backoff.expo,
         requests.exceptions.RequestException,
         max_time=60,
-        giveup=fatal_code,
+        giveup=fatal_code,  # type: ignore[arg-type]
     )
     def _send_request(
         self, endpoint: str, method: str = "GET", data: Any | None = None
@@ -286,6 +291,4 @@ def log_summary() -> None:
     global total_reward
     global total_submitted
 
-    logging.info("Summary of ThreatFox submissions:")
-    logging.info(f"Total submitted: {total_submitted}")
-    logging.info(f"Total reward: {total_reward}")
+    logging.info(f"Summary: {total_submitted} submissions | {total_reward} reward")
