@@ -92,20 +92,21 @@ tags: [C2, RAT]
 ---
 name: "Supershell"
 censys_query: "services: (software.product: Supershell or http.response.html_title=`Supershell - 登录`)"
+# censys_query: "services.software.product: Supershell"
 censys_virtual_hosts: true
 malware_name: "unknown"
 confidence_level: 100
 tags: [C2, Supershell]
 ---
 name: "BlackDolphin"
-censys_query: "services: (software.product: BlackDolphin or http.response.html_title=`BlackDolphin`)"
+censys_query: "services.software.product: BlackDolphin"
 censys_virtual_hosts: true
 malware_name: "unknown"
 confidence_level: 100
 tags: [C2, BlackDolphin]
 ---
 name: "Artemis Rat"
-censys_query: "services: (software.product: 'Artemis Rat' or http.response.html_title=`ARTEMIS RAT`)"
+censys_query: "services.software.product: 'Artemis Rat'"
 censys_virtual_hosts: false
 malware_name: "unknown"
 confidence_level: 100
@@ -113,6 +114,7 @@ tags: [C2, "Artemis Rat"]
 ---
 name: "VenomRAT"
 censys_query: 'services: (software.product: "VenomRAT" or tls.certificates.leaf_data.issuer_dn: {"CN=VenomRAT Server", "O=VenomRAT By "} or tls.certificates.leaf_data.subject_dn="CN=VenomRAT")'
+# censys_query: "services.software.product: VenomRAT"
 censys_virtual_hosts: true
 malware_name: "win.venom"
 confidence_level: 100
@@ -146,13 +148,6 @@ malware_name: "apk.spynote"
 confidence_level: 100
 tags: [C2]
 ---
-name: "Gh0st RAT"
-censys_query: "services.banner=`Gh0st`"
-censys_virtual_hosts: false
-malware_name: "win.ghost_rat"
-confidence_level: 75
-tags: [C2, RAT]
----
 name: "Pikabot"
 censys_query:
   'services: (jarm.fingerprint="21d19d00021d21d21c21d19d21d21dd188f9fdeea4d1b361be3a6ec494b2d2"
@@ -168,6 +163,14 @@ censys_virtual_hosts: false
 malware_name: "win.sliver"
 confidence_level: 90
 tags: [C2]
+---
+name: "Gh0st RAT"
+censys_query: "services: (service_name: GHOST or banner=`Gh0st`)"
+# censys_query: "services.service_name: GHOST"
+censys_virtual_hosts: false
+malware_name: "win.ghost_rat"
+confidence_level: 75
+tags: [C2, RAT]
 ---
 name: "DarkGate"
 censys_query: "services.service_name: DARKGATE"
