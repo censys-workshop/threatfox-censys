@@ -6,6 +6,10 @@ import requests
 
 from .fingerprint import Fingerprint
 
+# Global variables
+total_submitted = 0
+total_reward = 0
+
 
 def fatal_code(e: requests.exceptions.RequestException) -> bool:
     return 400 <= e.response.status_code < 500
@@ -242,8 +246,16 @@ def log_threatfox_response_data(
     if threatfox_response_data is None:
         return
 
+    # Get global variables
+    global total_reward
+    global total_submitted
+
     # Get the reward
     reward = int(threatfox_response_data.get("reward", 0))
+
+    # Update the global variables
+    total_reward += reward
+    total_submitted += 1
 
     # Get the number of IoCs
     num_iocs = len(threatfox_response_data.get("ok", []))
@@ -265,3 +277,15 @@ def log_threatfox_response_data(
         f"IoCs: {num_iocs} | Ignored: {num_ignored_iocs} | Duplicated:"
         f" {num_duplicated_iocs}"
     )
+
+
+def log_summary() -> None:
+    """
+    Log the summary of the ThreatFox submissions.
+    """
+    global total_reward
+    global total_submitted
+
+    logging.info("Summary of ThreatFox submissions:")
+    logging.info(f"Total submitted: {total_submitted}")
+    logging.info(f"Total reward: {total_reward}")

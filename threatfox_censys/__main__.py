@@ -18,7 +18,7 @@ from .fingerprint import (
 )
 from .models import Base, IoC
 from .settings import settings
-from .threatfox import ThreatFoxClient, log_threatfox_response_data
+from .threatfox import ThreatFoxClient, log_summary, log_threatfox_response_data
 from .utils import is_ipv4_address
 
 # Constants
@@ -54,19 +54,23 @@ class IoCType(str, Enum):
     URL = "url"  # Currently not supported by ThreatFox Censys
 
 
-def migrate_database(_: Namespace) -> None:
+def migrate_database(_: Namespace) -> int:
     with Session(engine) as session:
         # Create the tables
         Base.metadata.create_all(bind=engine)
 
         # Commit the session
-        session.commit()
+        try:
+            session.commit()
+        except Exception as e:
+            logging.error(f"Error committing session: {e}")
+            return 1
 
     # Log that we're done
     logging.info("Database migrations complete.")
 
     # Exit
-    return
+    return 0
 
 
 def submit_ioc(
@@ -292,6 +296,9 @@ def scan(args: Namespace) -> int:
                         additional_tags=additional_tags,
                     )
                     log_threatfox_response_data(fingerprint, threatfox_response_data)
+
+    # Log the summary
+    log_summary()
 
     # Return 0
     return 0
