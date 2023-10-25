@@ -121,11 +121,18 @@ confidence_level: 100
 tags: [C2, RAT]
 ---
 name: "NimPlant"
-censys_query: 'services.http.response.headers.Server: "NimPlant C2 Server"'
+censys_query: 'services.http.response.headers: (key: `Server` and value.headers: `NimPlant C2 Server`)'
 censys_virtual_hosts: true
 malware_name: "win.nimplant"
 confidence_level: 100
 tags: [C2]
+---
+name: "Ares RAT"
+censys_query: 'services.http.response.headers: (key: `Server` and value.headers=`Ares`)'
+censys_virtual_hosts: true
+malware_name: "win.ares"
+confidence_level: 90
+tags: [C2, RAT]
 ---
 name: "Gotham Stealer"
 censys_query: 'services.http.response.html_title: "Gotham Stealer"'
@@ -157,12 +164,58 @@ malware_name: "win.pikabot"
 confidence_level: 75
 tags: [C2]
 ---
-name: Gafgyt C2
+name: "Gafgyt"
 censys_query: "services: (banner: `!* SCANNER ON` and port: 23)"
 censys_virtual_hosts: false
-malware_name: elf.bashlite
+malware_name: "elf.bashlite"
 confidence_level: 90
 tags: [C2, DDOS]
+---
+name: "DarkComet"
+censys_query: 'services.banner: {8EA4AB05FA7E , C4A6EB42FC74, B47CB892B702, 00798B4A0595,
+  C7CF9C7CD932, 61A49CF4910B, 155CAD31A61F, 82695EF04B68, 1164805C82EE, 2ECB29F71503,
+  BF7CAB464EFB, DACA20185D99}'
+censys_virtual_hosts: false
+malware_name: "win.darkcomet"
+confidence_level: 100
+tags: [C2]
+---
+name: ShadowPad
+censys_query: 'services: (tls.certificates.leaf_data.subject_dn="C=CN, ST=myprovince,
+  L=mycity, O=myorganization, OU=mygroup, CN=myServer" and tls.certificates.leaf_data.issuer_dn="C=CN,
+  ST=myprovince, L=mycity, O=myorganization, OU=mygroup, CN=myCA")'
+censys_virtual_hosts: true
+malware_name: win.shadowpad
+confidence_level: 90
+tags: [C2, RAT]
+---
+name: "interactsh SMTP"
+censys_query: 'services: (service_name: SMTP and banner: "interactsh ESMTP Service ready")'
+censys_virtual_hosts: false
+malware_name: "unknown"
+confidence_level: 100
+tags: [C2, interactsh, interactsh-SMTP]
+---
+name: "interactsh HTTP"
+censys_query: 'services.http.response.headers.key: `X-Interactsh-Version`'
+censys_virtual_hosts: true
+malware_name: "unknown"
+confidence_level: 100
+tags: [C2, interactsh, interactsh-HTTP]
+---
+name: "interactsh LDAP"
+censys_query: 'services.ldap.attributes.values=`interact@s.h`'
+censys_virtual_hosts: true
+malware_name: "unknown"
+confidence_level: 100
+tags: [C2, interactsh, interactsh-LDAP]
+---
+name: "NetBus"
+censys_query: 'services.banner="NetBus 1.60 \r"'
+censys_virtual_hosts: false
+malware_name: "unknown"
+confidence_level: 100
+tags: [C2, NetBus]
 ---
 name: "Sliver"
 censys_query: "services: (tls.certificates.leaf_data.pubkey_bit_size: 2048 and tls.certificates.leaf_data.subject.organization: /(ACME|Partners|Tech|Cloud|Synergy|Test|Debug)? ?(co|llc|inc|corp|ltd)?/ and jarm.fingerprint: 3fd21b20d00000021c43d21b21b43d41226dd5dfc615dd4a96265559485910 and tls.certificates.leaf_data.subject.country: US and tls.certificates.leaf_data.subject.postal_code: /<1001-9999>/) or services: (jarm.fingerprint: 00000000000000000043d43d00043de2a97eabb398317329f027c66e4c1b01 and port: 31337)"
