@@ -157,6 +157,13 @@ malware_name: "win.pikabot"
 confidence_level: 75
 tags: [C2]
 ---
+name: Gafgyt C2
+censys_query: "services: (banner: `!* SCANNER ON` and port: 23)"
+censys_virtual_hosts: false
+malware_name: elf.bashlite
+confidence_level: 90
+tags: [C2, DDOS]
+---
 name: "Sliver"
 censys_query: "services: (tls.certificates.leaf_data.pubkey_bit_size: 2048 and tls.certificates.leaf_data.subject.organization: /(ACME|Partners|Tech|Cloud|Synergy|Test|Debug)? ?(co|llc|inc|corp|ltd)?/ and jarm.fingerprint: 3fd21b20d00000021c43d21b21b43d41226dd5dfc615dd4a96265559485910 and tls.certificates.leaf_data.subject.country: US and tls.certificates.leaf_data.subject.postal_code: /<1001-9999>/) or services: (jarm.fingerprint: 00000000000000000043d43d00043de2a97eabb398317329f027c66e4c1b01 and port: 31337)"
 censys_virtual_hosts: false
