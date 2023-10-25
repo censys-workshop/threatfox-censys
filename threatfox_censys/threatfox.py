@@ -3,6 +3,7 @@ from typing import Any
 
 import backoff
 import requests
+from requests.utils import default_user_agent
 
 from .fingerprint import Fingerprint
 
@@ -47,7 +48,14 @@ class ThreatFoxClient:
         self.api_key = api_key
         self.base_url = base_url.rstrip("/")  # Remove trailing slash if it exists
         self.timeout = timeout
-        self.headers = {"API-KEY": self.api_key, "Accept": "application/json"}
+        self.headers = {
+            "API-KEY": self.api_key,
+            "Accept": "application/json",
+            "User-Agent": (
+                f"{default_user_agent()} (ThreatfoxCensys;"
+                " +https://github.com/censys-workshop/threatfox-censys)"
+            ),
+        }
 
     @backoff.on_exception(
         backoff.expo,
@@ -70,7 +78,9 @@ class ThreatFoxClient:
         if method == "GET":
             if data:
                 raise ValueError("GET requests cannot have a data parameter")
-            response = requests.get(url, headers=self.headers, timeout=self.timeout)
+            response = requests.get(
+                url, headers=self.headers, timeout=self.timeout
+            )  # pragma: no cover
         elif method == "POST":
             response = requests.post(
                 url, headers=self.headers, json=data, timeout=self.timeout
@@ -240,7 +250,7 @@ class ThreatFoxClient:
 
 def log_threatfox_response_data(
     fingerprint: Fingerprint, threatfox_response_data: dict | None
-) -> None:
+) -> None:  # pragma: no cover
     """
     Log the ThreatFox response data.
 
@@ -272,7 +282,7 @@ def log_threatfox_response_data(
     num_duplicated_iocs = len(threatfox_response_data.get("duplicated", []))
 
     # Create the reward string
-    reward_str = f"Reward: {reward}" if reward > 0 else "No reward"
+    reward_str = f"Reward: {reward}" if reward > 0 else "No reward - already submitted"
 
     # Log the response
     logging.info(
@@ -284,7 +294,7 @@ def log_threatfox_response_data(
     )
 
 
-def log_summary() -> None:
+def log_summary() -> None:  # pragma: no cover
     """
     Log the summary of the ThreatFox submissions.
     """

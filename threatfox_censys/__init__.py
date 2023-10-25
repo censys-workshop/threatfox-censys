@@ -1,3 +1,5 @@
+"""ThreatFox Censys is a Python library for interacting with ThreatFox and Censys."""
+
 from .fingerprint import (
     Fingerprint,
     get_censys_search_link_for_fingerprint,

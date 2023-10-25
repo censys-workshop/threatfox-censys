@@ -41,7 +41,3 @@ build-backend = "poetry.core.masonry.api"
 profile = "black"
 known_first_party = "threatfox_censys"
 known_third_party = "censys,requests,pydantic,pyyaml,pytest,dotenv"
-
-[tool.coverage.run]
-# I don't really want to write tests for the CLI or Threatfox API
-omit = ["threatfox_censys/threatfox.py"]

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+"""This is the main entrypoint for ThreatFox Censys."""
 import logging
 from argparse import ArgumentParser, Namespace
 from enum import Enum
@@ -491,6 +493,12 @@ def parse_args() -> Namespace:
         type=str,
         default="fingerprints.yaml",
         help="The fingerprints YAML file to load. (Default: fingerprints.yaml)",
+    )
+    scan_parser.add_argument(
+        "--output",
+        "-o",
+        type=str,
+        help="The output csv file to write the results to.",
     )
     scan_parser.add_argument(
         "--include-tarpits",
