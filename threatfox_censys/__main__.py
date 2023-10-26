@@ -385,12 +385,14 @@ def create_fingerprint(args: Namespace) -> int:
     # Create the questions
     questions = [
         {
+            "name": "name",
             "type": "input",
             "message": "Fingerprint Name:",
             "validate": EmptyInputValidator(),
             "mandatory": True,
         },
         {
+            "name": "malware_name",
             "type": "fuzzy",
             "message": "Malware Name:",
             "choices": malware_names,
@@ -401,36 +403,47 @@ def create_fingerprint(args: Namespace) -> int:
                 if result != "unknown" and result is not None
                 else "Unknown malware"
             ),
+            "default": lambda result: result["name"],
             "mandatory": True,
         },
         {
+            "name": "censys_query",
             "type": "input",
             "message": "Censys Query:",
             "validate": EmptyInputValidator(),
             "mandatory": True,
         },
         {
+            "name": "censys_virtual_hosts",
             "type": "confirm",
             "message": "Include virtual hosts?",
-            "default": False,
+            # Make the default True if "http" is in the query
+            "default": lambda result: "http" in result["censys_query"],
             "mandatory": False,
         },
         {
+            "name": "confidence_level",
             "type": "number",
             "message": "Confidence Level:",
-            "default": 50,
+            "default": 100,
             "min_allowed": 0,
             "max_allowed": 100,
             "validate": EmptyInputValidator(),
             "mandatory": True,
         },
         {
+            "name": "tags",
             "type": "input",
             "message": "Tags:",
             "instruction": "Comma-separated list of tags.",
             "validate": EmptyInputValidator(),
             "mandatory": False,
-            "default": "C2",
+            # Make the default "C2,RAT" if "RAT" is in the malware name
+            "default": lambda result: (
+                "C2,RAT"
+                if "RAT" in result["name"].lower() or "rat" in result["malware_name"]
+                else "C2"
+            ),
             "filter": lambda result: result.split(","),
         },
     ]
@@ -442,22 +455,22 @@ def create_fingerprint(args: Namespace) -> int:
         return 0
 
     # Get the name
-    name: str = results[0]
+    name: str = results["name"]
 
     # Get the malware name
-    malware_name: str = results[1]
+    malware_name: str = results["malware_name"]
 
     # Get the Censys query
-    censys_query: str = results[2]
+    censys_query: str = results["censys_query"]
 
     # Get the virtual hosts
-    censys_virtual_hosts: bool = results[3]
+    censys_virtual_hosts: bool = results["censys_virtual_hosts"]
 
     # Get the confidence level
-    confidence_level: int = results[4]
+    confidence_level: int = results["confidence_level"]
 
     # Get the tags
-    tags: list[str] = results[5]
+    tags: list[str] = results["tags"]
 
     # Create the fingerprint
     fingerprint = Fingerprint(
@@ -472,9 +485,15 @@ def create_fingerprint(args: Namespace) -> int:
     # Dump the fingerprint
     fingerprint_dict = fingerprint.model_dump(exclude=["threat_type"])
 
+    # Create the YAML
+    fingerprint_yaml = yaml.dump(
+        fingerprint_dict, sort_keys=False, default_flow_style=None
+    )
+    fingerprint_yaml = f"---\n{fingerprint_yaml}"
+
     # Print the fingerprint as YAML
-    print("Add the following fingerprint to fingerprints.yaml:\n---")
-    print(yaml.dump(fingerprint_dict, sort_keys=False, default_flow_style=None))
+    print("Add the following fingerprint to fingerprints.yaml:")
+    print(fingerprint_yaml)
 
     # Return 0
     return 0
