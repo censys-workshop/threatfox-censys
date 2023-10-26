@@ -13,11 +13,7 @@ from InquirerPy.validator import EmptyInputValidator
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-from .fingerprint import (
-    Fingerprint,
-    get_censys_search_link_from_query,
-    load_fingerprints_from_yaml,
-)
+from .fingerprint import Fingerprint, load_fingerprints_from_yaml
 from .models import Base, IoC
 from .settings import settings
 from .threatfox import ThreatFoxClient, log_summary, log_threatfox_response_data
@@ -82,6 +78,7 @@ def submit_ioc(
     ioc: str,
     ioc_type: IoCType,
     additional_tags: list[str] | None = None,
+    reference: str | None = None,
 ) -> dict | None:
     """
     Submit an IoC to ThreatFox.
@@ -92,6 +89,7 @@ def submit_ioc(
     :param ioc: The IoC.
     :param ioc_type: The IoC type.
     :param additional_tags: Additional tags to add to the IoC.
+    :param reference: The reference to add to the IoC.
     :return: The ThreatFox response data.
     """
     # Check if the IoC is already in the database
@@ -129,21 +127,6 @@ def submit_ioc(
 
     # Log the tags
     logging.debug(f"Tags: {tags}")
-
-    reference: str | None = None
-    # If the IoC is an IP address, create the search link
-    if ioc_type == IoCType.IP_PORT:
-        # Get the IP address
-        ip_address = ioc.split(":")[0]
-
-        # Create the reference
-        reference = f"https://search.censys.io/hosts/{ip_address}"
-    # If the IoC is a domain, create the search link
-    elif ioc_type == IoCType.DOMAIN:
-        # Create the query
-        censys_query = f"name: {ioc}"
-        # Create the reference
-        reference = get_censys_search_link_from_query(censys_query, True)
 
     # Log that we're submitting the IoC to ThreatFox
     logging.info(f"Submitting IoC {ioc} to ThreatFox...")
@@ -191,6 +174,31 @@ def submit_ioc(
 def scan(args: Namespace) -> int:
     # Load fingerprints from YAML file
     fingerprints = load_fingerprints_from_yaml(args.fingerprints)
+
+    # If the user specified tags, filter the fingerprints
+    if args.tag:
+        # Get the specified tags
+        specified_tags: set[str] = set(args.tag)
+
+        # If the user specified no tags, exit
+        if len(specified_tags) == 0 or (
+            len(specified_tags) == 1 and "" in specified_tags
+        ):
+            logging.error("No tags specified.")
+            return 1
+
+        # Convert the tags to lowercase
+        specified_tags = {tag.lower() for tag in specified_tags}
+
+        # Filter the fingerprints
+        fingerprints = [
+            fingerprint
+            for fingerprint in fingerprints
+            if any(
+                tag in [fp_tag.lower() for fp_tag in fingerprint.tags]
+                for tag in specified_tags
+            )
+        ]
 
     # If the user wants to include tarpits, make them confirm
     if args.include_tarpits:
@@ -249,6 +257,9 @@ def scan(args: Namespace) -> int:
         with Session(engine) as session:
             # Parse out the name
             for host in hosts:
+                # Get the ip
+                ip = host["ip"]
+
                 # Try to get the name
                 name: str | None = host.get("name", None)
 
@@ -262,9 +273,11 @@ def scan(args: Namespace) -> int:
                 if " " not in autonomous_system_name:
                     additional_tags.append(autonomous_system_name)
 
+                # Create the reference
+                reference = f"https://search.censys.io/hosts/{ip}"
+
                 # Loop over the matched services if there is no name
                 if name is None:
-                    ip = host["ip"]
                     if not is_ipv4_address(ip):
                         logging.debug(
                             f"IP {ip} is not a valid IPv4 address. Skipping..."
@@ -273,34 +286,54 @@ def scan(args: Namespace) -> int:
 
                     for matched_service in host["matched_services"]:
                         # Get the ip:port combination
-                        ip_port = f"{host['ip']}:{matched_service['port']}"
+                        ip_port = f"{ip}:{matched_service['port']}"
 
                         # Submit the ip:port combination
+                        if args.no_submit:
+                            logging.info(
+                                f"Would submit {ip_port} to ThreatFox. Ref: {reference}"
+                            )
+                        else:
+                            threatfox_response_data = submit_ioc(
+                                session,
+                                threatfox_client,
+                                fingerprint,
+                                ip_port,
+                                IoCType.IP_PORT,
+                                additional_tags=additional_tags,
+                                reference=reference,
+                            )
+                            log_threatfox_response_data(
+                                fingerprint, threatfox_response_data
+                            )
+                else:
+                    # Update the reference
+                    reference += f"+{name}"
+
+                    # Submit the name
+                    if args.no_submit:
+                        logging.info(
+                            f"Would submit {name} to ThreatFox. Ref: {reference}"
+                        )
+                    else:
                         threatfox_response_data = submit_ioc(
                             session,
                             threatfox_client,
                             fingerprint,
-                            ip_port,
-                            IoCType.IP_PORT,
+                            name,
+                            IoCType.DOMAIN,
                             additional_tags=additional_tags,
+                            reference=reference,
                         )
                         log_threatfox_response_data(
                             fingerprint, threatfox_response_data
                         )
-                else:
-                    # Submit the name
-                    threatfox_response_data = submit_ioc(
-                        session,
-                        threatfox_client,
-                        fingerprint,
-                        name,
-                        IoCType.DOMAIN,
-                        additional_tags=additional_tags,
-                    )
-                    log_threatfox_response_data(fingerprint, threatfox_response_data)
 
-    # Log the summary
-    log_summary()
+    # Log the summary or tell the user to rerun without --no-submit
+    if args.no_submit:
+        logging.info("Rerun without --no-submit to submit the results to ThreatFox.")
+    else:
+        log_summary()
 
     # Return 0
     return 0
@@ -494,21 +527,36 @@ def parse_args() -> Namespace:
         default="fingerprints.yaml",
         help="The fingerprints YAML file to load. (Default: fingerprints.yaml)",
     )
+    # Allow multiple tags to be specified
     scan_parser.add_argument(
-        "--output",
-        "-o",
+        "--tag",
+        "-t",
         type=str,
-        help="The output csv file to write the results to.",
+        action="append",
+        help="The tag of the fingerprints to scan. (Default: all fingerprints)",
+    )
+    scan_parser.add_argument(
+        "--no-submit",
+        "-n",
+        action="store_true",
+        help="Do not submit the results to ThreatFox. (Default: False)",
     )
     scan_parser.add_argument(
         "--include-tarpits",
-        "-t",
+        "-T",
         action="store_true",
         help=(
-            "Include tarpits in the results. Please note that tarpits may increase"
+            "Include tarpits in the results. Tarpits will increase"
             " the number of false positives. (Default: False)"
         ),
     )
+    # TODO: Implement csv output
+    # scan_parser.add_argument(
+    #     "--output",
+    #     "-o",
+    #     type=str,
+    #     help="The output csv file to write the results to.",
+    # )
     scan_parser.set_defaults(func=scan)
 
     # Create fingerprint
