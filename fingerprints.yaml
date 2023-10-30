@@ -141,7 +141,7 @@ malware_name: "unknown"
 confidence_level: 100
 tags: [C2, stealer, GothamStealer]
 ---
-name: "BlackNET"
+name: "BlackNET RAT"
 censys_query: 'services.http.response.html_title: "BlackNET - Login"'
 censys_virtual_hosts: true
 malware_name: "win.blacknet_rat"
@@ -189,27 +189,27 @@ malware_name: win.shadowpad
 confidence_level: 90
 tags: [C2, RAT]
 ---
-name: "interactsh SMTP"
-censys_query: 'services: (service_name: SMTP and banner: "interactsh ESMTP Service ready")'
-censys_virtual_hosts: false
-malware_name: "unknown"
-confidence_level: 100
-tags: [C2, interactsh, interactsh-SMTP]
----
-name: "interactsh HTTP"
-censys_query: 'services.http.response.headers.key: `X-Interactsh-Version`'
-censys_virtual_hosts: true
-malware_name: "unknown"
-confidence_level: 100
-tags: [C2, interactsh, interactsh-HTTP]
----
-name: "interactsh LDAP"
-censys_query: 'services.ldap.attributes.values=`interact@s.h`'
-censys_virtual_hosts: true
-malware_name: "unknown"
-confidence_level: 100
-tags: [C2, interactsh, interactsh-LDAP]
----
+# name: "interactsh SMTP"
+# censys_query: 'services: (service_name: SMTP and banner: "interactsh ESMTP Service ready")'
+# censys_virtual_hosts: false
+# malware_name: "unknown"
+# confidence_level: 100
+# tags: [C2, interactsh, interactsh-SMTP]
+# ---
+# name: "interactsh HTTP"
+# censys_query: 'services.http.response.headers.key: `X-Interactsh-Version`'
+# censys_virtual_hosts: true
+# malware_name: "unknown"
+# confidence_level: 100
+# tags: [C2, interactsh, interactsh-HTTP]
+# ---
+# name: "interactsh LDAP"
+# censys_query: 'services.ldap.attributes.values=`interact@s.h`'
+# censys_virtual_hosts: true
+# malware_name: "unknown"
+# confidence_level: 100
+# tags: [C2, interactsh, interactsh-LDAP]
+# ---
 name: "NetBus"
 censys_query: 'services.banner="NetBus 1.60 \r"'
 censys_virtual_hosts: false
