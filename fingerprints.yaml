@@ -155,15 +155,15 @@ malware_name: "apk.spynote"
 confidence_level: 100
 tags: [C2]
 ---
-name: "Pikabot"
-censys_query:
-  'services: (jarm.fingerprint="21d19d00021d21d21c21d19d21d21dd188f9fdeea4d1b361be3a6ec494b2d2"
-  and port: 5000)'
-censys_virtual_hosts: false
-malware_name: "win.pikabot"
-confidence_level: 75
-tags: [C2]
----
+# name: "Pikabot"
+# censys_query:
+#   'services: (jarm.fingerprint="21d19d00021d21d21c21d19d21d21dd188f9fdeea4d1b361be3a6ec494b2d2"
+#   and port: 5000)'
+# censys_virtual_hosts: false
+# malware_name: "win.pikabot"
+# confidence_level: 75
+# tags: [C2]
+# ---
 name: "Gafgyt"
 censys_query: "services: (banner: `!* SCANNER ON` and port: 23)"
 censys_virtual_hosts: false
