@@ -9,12 +9,12 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
-    assignees:
+    reviewers:
       - "thehappydinoa"
 
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
       interval: "weekly"
-    assignees:
+    reviewers:
       - "thehappydinoa"

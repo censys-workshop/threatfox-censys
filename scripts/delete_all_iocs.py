@@ -5,12 +5,14 @@ from threatfox_censys.threatfox import ThreatFoxClient
 
 # Get the ThreatFox API key from the environment
 threatfox_api_key = os.getenv("THREATFOX_API_KEY")
+if not threatfox_api_key:
+    raise ValueError("ThreatFox API key not found in environment")
 
 # Create a ThreatFoxClient instance
 threatfox_client = ThreatFoxClient(api_key=threatfox_api_key)
 
 # Search for IoCs
-response = threatfox_client.query_tag("censys")
+response = threatfox_client.search_iocs_by_tag("censys")
 
 # Get data from the response
 data = response["data"]
@@ -24,7 +26,7 @@ for ioc in data:
 # Format list as JSON
 ioc_ids_json = json.dumps(ioc_ids)
 
-# List javscript
+# List javascript
 javascript = f"let iocIds = {ioc_ids_json};"
 
 # Format script
