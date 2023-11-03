@@ -121,28 +121,32 @@ confidence_level: 100
 tags: [C2, RAT]
 ---
 name: "NimPlant"
-censys_query: 'services.http.response.headers: (key: `Server` and value.headers: `NimPlant C2 Server`)'
+censys_query: 'services: (services.software.product: NimPlant or http.response.headers: (key: `Server` and value.headers: `NimPlant C2 Server`))'
+# censys_query: "services.software.product: NimPlant"
 censys_virtual_hosts: true
 malware_name: "win.nimplant"
 confidence_level: 100
 tags: [C2]
 ---
 name: "Ares RAT"
-censys_query: 'services.http.response.headers: (key: `Server` and value.headers=`Ares`)'
+censys_query: 'services: (services.software.product: "Ares RAT" or http.response.headers: (key: `Server` and value.headers=`Ares`))'
+# censys_query: 'services.software.product: "Ares RAT"'
 censys_virtual_hosts: true
 malware_name: "win.ares"
 confidence_level: 90
 tags: [C2, RAT]
 ---
 name: "Gotham Stealer"
-censys_query: 'services.http.response.html_title: "Gotham Stealer"'
+censys_query: 'services:(services.software.product: "Gotham Stealer" or http.response.html_title: "Gotham Stealer")'
+# censys_query: 'services.software.product: "Gotham Stealer"'
 censys_virtual_hosts: true
 malware_name: "unknown"
 confidence_level: 100
 tags: [C2, stealer, GothamStealer]
 ---
 name: "BlackNET RAT"
-censys_query: 'services.http.response.html_title: "BlackNET - Login"'
+censys_query: 'services:(services.software.product: "BlackNET RAT" or http.response.html_title: "BlackNET - Login")'
+# censys_query: 'services.software.product: "BlackNET RAT"'
 censys_virtual_hosts: true
 malware_name: "win.blacknet_rat"
 confidence_level: 100
@@ -155,15 +159,6 @@ malware_name: "apk.spynote"
 confidence_level: 100
 tags: [C2]
 ---
-# name: "Pikabot"
-# censys_query:
-#   'services: (jarm.fingerprint="21d19d00021d21d21c21d19d21d21dd188f9fdeea4d1b361be3a6ec494b2d2"
-#   and port: 5000)'
-# censys_virtual_hosts: false
-# malware_name: "win.pikabot"
-# confidence_level: 75
-# tags: [C2]
-# ---
 name: "Gafgyt"
 censys_query: "services: (banner: `!* SCANNER ON` and port: 23)"
 censys_virtual_hosts: false
@@ -189,27 +184,6 @@ malware_name: win.shadowpad
 confidence_level: 90
 tags: [C2, RAT]
 ---
-# name: "interactsh SMTP"
-# censys_query: 'services: (service_name: SMTP and banner: "interactsh ESMTP Service ready")'
-# censys_virtual_hosts: false
-# malware_name: "unknown"
-# confidence_level: 100
-# tags: [C2, interactsh, interactsh-SMTP]
-# ---
-# name: "interactsh HTTP"
-# censys_query: 'services.http.response.headers.key: `X-Interactsh-Version`'
-# censys_virtual_hosts: true
-# malware_name: "unknown"
-# confidence_level: 100
-# tags: [C2, interactsh, interactsh-HTTP]
-# ---
-# name: "interactsh LDAP"
-# censys_query: 'services.ldap.attributes.values=`interact@s.h`'
-# censys_virtual_hosts: true
-# malware_name: "unknown"
-# confidence_level: 100
-# tags: [C2, interactsh, interactsh-LDAP]
-# ---
 name: "NetBus"
 censys_query: 'services.banner="NetBus 1.60 \r"'
 censys_virtual_hosts: false
