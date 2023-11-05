@@ -195,7 +195,7 @@ def scan(args: Namespace) -> int:
             fingerprint
             for fingerprint in fingerprints
             if any(
-                tag in [fp_tag.lower() for fp_tag in fingerprint.tags]
+                tag in [fp_tag.lower() for fp_tag in fingerprint.tags]  # type: ignore
                 for tag in specified_tags
             )
         ]
@@ -221,6 +221,17 @@ def scan(args: Namespace) -> int:
         # If the user does not want to include tarpits, exit
         if not results[0]:
             return 0
+
+    # If the user specified an excluded IOCs file, load it
+    excluded_iocs: set[str] = set()
+    if args.excluded_iocs:
+        # Open the file
+        with open(args.excluded_iocs) as f:
+            # Read the file
+            excluded_iocs_raw = f.read()
+
+        # Split the file by newlines
+        excluded_iocs = set(excluded_iocs_raw.split("\n"))
 
     # For each fingerprint, search Censys and submit the results to ThreatFox
     for fingerprint in fingerprints:
@@ -288,6 +299,13 @@ def scan(args: Namespace) -> int:
                         # Get the ip:port combination
                         ip_port = f"{ip}:{matched_service['port']}"
 
+                        # If the ip:port combination is in the excluded IOCs, skip it
+                        if ip_port in excluded_iocs:
+                            logging.debug(
+                                f"IP:Port {ip_port} in excluded IOCs. Skipping..."
+                            )
+                            continue
+
                         # Submit the ip:port combination
                         if args.no_submit:
                             logging.info(
@@ -307,6 +325,11 @@ def scan(args: Namespace) -> int:
                                 fingerprint, threatfox_response_data
                             )
                 else:
+                    # If the name is in the excluded IOCs, skip it
+                    if name in excluded_iocs:
+                        logging.debug(f"Name {name} in excluded IOCs. Skipping...")
+                        continue
+
                     # Update the reference
                     reference += f"+{name}"
 
@@ -455,22 +478,22 @@ def create_fingerprint(args: Namespace) -> int:
         return 0
 
     # Get the name
-    name: str = results["name"]
+    name: str = results["name"]  # type: ignore[assignment]
 
     # Get the malware name
-    malware_name: str = results["malware_name"]
+    malware_name: str = results["malware_name"]  # type: ignore[assignment,no-redef]
 
     # Get the Censys query
-    censys_query: str = results["censys_query"]
+    censys_query: str = results["censys_query"]  # type: ignore[assignment]
 
     # Get the virtual hosts
-    censys_virtual_hosts: bool = results["censys_virtual_hosts"]
+    censys_virtual_hosts: bool = results["censys_virtual_hosts"]  # type: ignore
 
     # Get the confidence level
-    confidence_level: int = results["confidence_level"]
+    confidence_level: int = results["confidence_level"]  # type: ignore[assignment]
 
     # Get the tags
-    tags: list[str] = results["tags"]
+    tags: list[str] = results["tags"]  # type: ignore[assignment]
 
     # Create the fingerprint
     fingerprint = Fingerprint(
@@ -483,7 +506,7 @@ def create_fingerprint(args: Namespace) -> int:
     )
 
     # Dump the fingerprint
-    fingerprint_dict = fingerprint.model_dump(exclude=["threat_type"])
+    fingerprint_dict = fingerprint.model_dump(exclude={"threat_type"})
 
     # Create the YAML
     fingerprint_yaml = yaml.dump(
@@ -546,7 +569,15 @@ def parse_args() -> Namespace:
         default="fingerprints.yaml",
         help="The fingerprints YAML file to load. (Default: fingerprints.yaml)",
     )
-    # Allow multiple tags to be specified
+    scan_parser.add_argument(
+        "--excluded-iocs",
+        "-e",
+        type=str,
+        help=(
+            "The file containing the IOCs to exclude. This file should be a"
+            " newline-separated list of IOCs."
+        ),
+    )
     scan_parser.add_argument(
         "--tag",
         "-t",
