@@ -190,9 +190,10 @@ confidence_level: 100
 tags: [C2]
 ---
 name: ShadowPad
-censys_query: 'services: (tls.certificates.leaf_data.subject_dn="C=CN, ST=myprovince,
+censys_query: 'services.software.product: ShadowPad or services: (tls.certificates.leaf_data.subject_dn="C=CN, ST=myprovince,
   L=mycity, O=myorganization, OU=mygroup, CN=myServer" and tls.certificates.leaf_data.issuer_dn="C=CN,
   ST=myprovince, L=mycity, O=myorganization, OU=mygroup, CN=myCA")'
+# censys_query: 'services.software.product: ShadowPad'
 censys_virtual_hosts: true
 malware_name: win.shadowpad
 confidence_level: 90
@@ -211,6 +212,24 @@ censys_virtual_hosts: false
 malware_name: "win.sliver"
 confidence_level: 90
 tags: [C2]
+---
+name: Pikabot
+censys_query: 'services: (jarm.fingerprint: 21d19d00021d21d21c21d19d21d21dd188f9fdeea4d1b361be3a6ec494b2d2
+  and tls.certificates.leaf_data.signature.self_signed: true and tls.certificates.leaf_data.issuer_dn:
+  /C=[A-Z]{2}, ST=[A-Z]{2}, O=([A-Z][a-z]{2,})( [A-Z][a-z\.]{2,}){0,5}, OU=([A-Z][a-z]{2,})(
+  [A-Z][a-z\.]{2,}){0,5}, L=([A-Z][a-z]{2,})( [A-Z][a-z]{2,}){0,2}, CN=.*/)'
+censys_virtual_hosts: false
+malware_name: win.pikabot
+confidence_level: 75
+tags: [C2]
+---
+name: Viper
+censys_query: 'services: ((http.response.body_hashes="sha1:cd40dbcdae84b1c8606f29342066547069ed5a33"
+  or http.response.favicons.md5_hash="a7469955bff5e489d2270d9b389064e1") and http.response.html_title="VIPER")'
+censys_virtual_hosts: false
+malware_name: apk.viper_rat
+confidence_level: 100
+tags: [C2, RAT]
 ---
 name: "Gh0st RAT"
 censys_query: "services: (service_name: GHOST or banner=`Gh0st`)"
