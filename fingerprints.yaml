@@ -144,6 +144,13 @@ malware_name: "unknown"
 confidence_level: 100
 tags: [C2, stealer, GothamStealer]
 ---
+name: Serpent Stealer
+censys_query: 'services: (http.response.html_title="Serpent" and tls.certificates.leaf_data.subject_dn="CN=petespizzatracker.com")'
+censys_virtual_hosts: true
+malware_name: unknown
+confidence_level: 100
+tags: [C2, stealer, SerpentStealer]
+---
 name: "BlackNET RAT"
 censys_query: 'services:(services.software.product: "BlackNET RAT" or http.response.html_title: "BlackNET - Login")'
 # censys_query: 'services.software.product: "BlackNET RAT"'
@@ -153,11 +160,18 @@ confidence_level: 100
 tags: [C2, RAT]
 ---
 name: "Spynote"
-censys_query: services.http.response.html_title="BABYEON"
+censys_query: services.http.response.html_title={"Estafeta & Go", "BABYEON"}
 censys_virtual_hosts: true
 malware_name: "apk.spynote"
 confidence_level: 100
 tags: [C2]
+---
+name: GhostLocker
+censys_query: 'services: (http.response.html_title="Affiliate Login" and software.product="Werkzeug")'
+censys_virtual_hosts: true
+malware_name: unknown
+confidence_level: 100
+tags: [C2, locker, GhostLocker]
 ---
 name: "Gafgyt"
 censys_query: "services: (banner: `!* SCANNER ON` and port: 23)"
