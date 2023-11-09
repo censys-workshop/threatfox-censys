@@ -126,10 +126,10 @@ def submit_ioc(
     tags = list(set(fingerprint_tags))
 
     # Log the tags
-    logging.debug(f"Tags: {tags}")
+    # logging.debug(f"Tags: {tags}")
 
     # Log that we're submitting the IoC to ThreatFox
-    logging.info(f"Submitting IoC {ioc} to ThreatFox...")
+    logging.debug(f"Submitting {fingerprint.name} IoC {ioc} to ThreatFox...")
 
     # Submit the IoC to ThreatFox
     threatfox_response = threatfox_client.submit_ioc(
@@ -161,11 +161,13 @@ def submit_ioc(
         # Commit the session
         session.commit()
 
-        # Return the response
-        return threatfox_response.get("data", {})
+        # Log the response
+        if data := threatfox_response.get("data", {}):
+            log_threatfox_response_data(fingerprint, ioc, data)
+            return data
 
     # If the query was not successful, log the response
-    logging.error(f"Error submitting IoC {ioc} to ThreatFox.")
+    logging.error(f"Error submitting IoC '{ioc}' to ThreatFox.")
 
     # Return None
     return None
@@ -238,8 +240,10 @@ def scan(args: Namespace) -> int:
         # Get the virtual hosts
         virtual_hosts = "INCLUDE" if fingerprint.censys_virtual_hosts else "EXCLUDE"
 
-        # If we're not including tarpits, exclude them
+        # Get the Censys query
         censys_query = fingerprint.censys_query
+
+        # If we're not including tarpits, exclude them
         if not args.include_tarpits:
             censys_query += " and not labels: tarpit"
 
@@ -312,7 +316,7 @@ def scan(args: Namespace) -> int:
                                 f"Would submit {ip_port} to ThreatFox. Ref: {reference}"
                             )
                         else:
-                            threatfox_response_data = submit_ioc(
+                            submit_ioc(
                                 session,
                                 threatfox_client,
                                 fingerprint,
@@ -320,9 +324,6 @@ def scan(args: Namespace) -> int:
                                 IoCType.IP_PORT,
                                 additional_tags=additional_tags,
                                 reference=reference,
-                            )
-                            log_threatfox_response_data(
-                                fingerprint, threatfox_response_data
                             )
                 else:
                     # If the name is in the excluded IOCs, skip it
@@ -339,7 +340,7 @@ def scan(args: Namespace) -> int:
                             f"Would submit {name} to ThreatFox. Ref: {reference}"
                         )
                     else:
-                        threatfox_response_data = submit_ioc(
+                        submit_ioc(
                             session,
                             threatfox_client,
                             fingerprint,
@@ -347,9 +348,6 @@ def scan(args: Namespace) -> int:
                             IoCType.DOMAIN,
                             additional_tags=additional_tags,
                             reference=reference,
-                        )
-                        log_threatfox_response_data(
-                            fingerprint, threatfox_response_data
                         )
 
     # Log the summary or tell the user to rerun without --no-submit
