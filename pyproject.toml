@@ -21,6 +21,7 @@ pydantic-settings = "^2.0.3"
 psycopg2 = "^2.9.9"
 inquirerpy = "^0.3.4"
 backoff = "^2.2.1"
+mastodon-py = "^1.8.1"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.11.0"

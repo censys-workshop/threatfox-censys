@@ -21,6 +21,14 @@ class Settings(BaseSettings):
         title="Database URL",
     )
 
+    # Mastodon API URL
+    MASTODON_API_URL: str | None = Field(title="Mastodon API URL", default=None)
+
+    # Mastodon Access Token
+    MASTODON_ACCESS_TOKEN: str | None = Field(
+        title="Mastodon Access Token", default=None
+    )
+
     model_config = SettingsConfigDict(
         env_file=".env", env_file_encoding="utf-8", case_sensitive=False
     )

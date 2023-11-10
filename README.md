@@ -61,6 +61,10 @@ Scan Censys Search for IoCs and submit them to ThreatFox.
 poetry run threatfox-censys scan
 ```
 
+#### Mastodon Posts
+
+You can also post the results to Mastodon. Make sure to set the `MASTODON_API_URL` and `MASTODON_ACCESS_TOKEN` environment variables. It will post a toot for each IoC found. Simply create a Mastodon app and get the access token.
+
 ### Create Fingerprint
 
 Prompt the user to create a fingerprint for an IoC.

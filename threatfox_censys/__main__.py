@@ -10,6 +10,7 @@ from censys.common.version import __version__ as censys_version
 from censys.search import CensysHosts
 from InquirerPy import prompt
 from InquirerPy.validator import EmptyInputValidator
+from mastodon import Mastodon
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
@@ -40,6 +41,14 @@ censys_client = CensysHosts(
     user_agent=USER_AGENT,
     timeout=TIMEOUT,
 )
+
+# If Mastodon is configured, create a Mastodon instance
+mastodon_client = None
+if settings.MASTODON_API_URL and settings.MASTODON_ACCESS_TOKEN:
+    mastodon_client = Mastodon(
+        api_base_url=settings.MASTODON_API_URL,
+        access_token=settings.MASTODON_ACCESS_TOKEN,
+    )
 
 
 class IoCType(str, Enum):
@@ -161,9 +170,24 @@ def submit_ioc(
         # Commit the session
         session.commit()
 
-        # Log the response
+        # Get the data
         if data := threatfox_response.get("data", {}):
+            # Log the response data
             log_threatfox_response_data(fingerprint, ioc, data)
+
+            # Post to Mastodon
+            if mastodon_client:
+                tags_str = ", ".join(tags)
+                hashtags = []
+                if "c2" in tags_str.lower():
+                    hashtags.append("C2")
+                if "rat" in tags_str.lower():
+                    hashtags.append("RAT")
+                hashtags_str = " ".join([f"#{tag}" for tag in hashtags])
+                mastodon_client.toot(
+                    f"New {fingerprint.name} IoC: {ioc}\n\nTags:"
+                    f" {tags_str}\n\nReference: {reference}\n\n{hashtags_str}"
+                )
             return data
 
     # If the query was not successful, log the response
