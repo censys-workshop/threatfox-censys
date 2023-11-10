@@ -151,6 +151,14 @@ malware_name: unknown
 confidence_level: 100
 tags: [C2, stealer, SerpentStealer]
 ---
+name: Vidar
+censys_query: 'services: (tls.certificate.parsed.issuer.organization: "StaticIP" and
+  tls.certificate.parsed.subject.organizational_unit: "privateIP")'
+censys_virtual_hosts: true
+malware_name: win.vidar
+confidence_level: 100
+tags: [C2]
+---
 name: "BlackNET RAT"
 censys_query: 'services:(services.software.product: "BlackNET RAT" or http.response.html_title: "BlackNET - Login")'
 # censys_query: 'services.software.product: "BlackNET RAT"'
