@@ -121,7 +121,7 @@ confidence_level: 100
 tags: [C2, RAT]
 ---
 name: "NimPlant"
-censys_query: 'services: (services.software.product: NimPlant or http.response.headers: (key: `Server` and value.headers: `NimPlant C2 Server`))'
+censys_query: "services: (services.software.product: NimPlant or http.response.headers: (key: `Server` and value.headers: `NimPlant C2 Server`))"
 # censys_query: "services.software.product: NimPlant"
 censys_virtual_hosts: true
 malware_name: "win.nimplant"
@@ -152,8 +152,10 @@ confidence_level: 100
 tags: [C2, stealer, SerpentStealer]
 ---
 name: Vidar
-censys_query: 'services: (tls.certificate.parsed.issuer.organization: "StaticIP" and
+censys_query: 'services.software.product: Vidar or
+  services: (tls.certificate.parsed.issuer.organization: "StaticIP" and
   tls.certificate.parsed.subject.organizational_unit: "privateIP")'
+# censys_query: 'services.software.product: Vidar'
 censys_virtual_hosts: true
 malware_name: win.vidar
 confidence_level: 100
@@ -189,16 +191,18 @@ confidence_level: 90
 tags: [C2, DDOS]
 ---
 name: "DarkComet"
-censys_query: 'services.banner: {8EA4AB05FA7E , C4A6EB42FC74, B47CB892B702, 00798B4A0595,
+censys_query:
+  "services.banner: {8EA4AB05FA7E , C4A6EB42FC74, B47CB892B702, 00798B4A0595,
   C7CF9C7CD932, 61A49CF4910B, 155CAD31A61F, 82695EF04B68, 1164805C82EE, 2ECB29F71503,
-  BF7CAB464EFB, DACA20185D99}'
+  BF7CAB464EFB, DACA20185D99}"
 censys_virtual_hosts: false
 malware_name: "win.darkcomet"
 confidence_level: 100
 tags: [C2]
 ---
 name: ShadowPad
-censys_query: 'services.software.product: ShadowPad or services: (tls.certificates.leaf_data.subject_dn="C=CN, ST=myprovince,
+censys_query:
+  'services.software.product: ShadowPad or services: (tls.certificates.leaf_data.subject_dn="C=CN, ST=myprovince,
   L=mycity, O=myorganization, OU=mygroup, CN=myServer" and tls.certificates.leaf_data.issuer_dn="C=CN,
   ST=myprovince, L=mycity, O=myorganization, OU=mygroup, CN=myCA")'
 # censys_query: 'services.software.product: ShadowPad'
@@ -222,7 +226,8 @@ confidence_level: 90
 tags: [C2]
 ---
 name: Pikabot
-censys_query: 'services: (jarm.fingerprint: 21d19d00021d21d21c21d19d21d21dd188f9fdeea4d1b361be3a6ec494b2d2
+censys_query:
+  'services: (jarm.fingerprint: 21d19d00021d21d21c21d19d21d21dd188f9fdeea4d1b361be3a6ec494b2d2
   and tls.certificates.leaf_data.signature.self_signed: true and tls.certificates.leaf_data.issuer_dn:
   /C=[A-Z]{2}, ST=[A-Z]{2}, O=([A-Z][a-z]{2,})( [A-Z][a-z\.]{2,}){0,5}, OU=([A-Z][a-z]{2,})(
   [A-Z][a-z\.]{2,}){0,5}, L=([A-Z][a-z]{2,})( [A-Z][a-z]{2,}){0,2}, CN=.*/)'
@@ -232,7 +237,8 @@ confidence_level: 75
 tags: [C2]
 ---
 name: Viper
-censys_query: 'services: ((http.response.body_hashes="sha1:cd40dbcdae84b1c8606f29342066547069ed5a33"
+censys_query:
+  'services: ((http.response.body_hashes="sha1:cd40dbcdae84b1c8606f29342066547069ed5a33"
   or http.response.favicons.md5_hash="a7469955bff5e489d2270d9b389064e1") and http.response.html_title="VIPER")'
 censys_virtual_hosts: false
 malware_name: apk.viper_rat

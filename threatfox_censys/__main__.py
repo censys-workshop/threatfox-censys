@@ -178,15 +178,17 @@ def submit_ioc(
             # Post to Mastodon
             if mastodon_client:
                 tags_str = ", ".join(tags)
-                hashtags = []
+                hashtags = [fingerprint.name.replace(" ", "")]
                 if "c2" in tags_str.lower():
                     hashtags.append("C2")
+                if "stealer" in tags_str.lower():
+                    hashtags.append("Stealer")
                 if "rat" in tags_str.lower():
                     hashtags.append("RAT")
                 hashtags_str = " ".join([f"#{tag}" for tag in hashtags])
                 mastodon_client.toot(
-                    f"New {fingerprint.name} IoC: {ioc}\n\nTags:"
-                    f" {tags_str}\n\nReference: {reference}\n\n{hashtags_str}"
+                    f"New {fingerprint.name} IoC: {ioc}\n\n"
+                    f"Reference: {reference}\n\n{hashtags_str}"
                 )
             return data
 
