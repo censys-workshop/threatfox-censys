@@ -50,6 +50,7 @@ tags: [C2]
 ---
 name: "RisePro"
 censys_query: "services.software.product: RisePro or services.http.response.headers: (key: `Server` and value.headers: `RisePro`) or services.http.response.html_title=`Log In — RisePro`"
+# censys_query: "services.software.product: RisePro"
 censys_virtual_hosts: false
 malware_name: "win.risepro"
 confidence_level: 100
@@ -137,7 +138,7 @@ confidence_level: 90
 tags: [C2, RAT]
 ---
 name: "Gotham Stealer"
-censys_query: 'services:(services.software.product: "Gotham Stealer" or http.response.html_title: "Gotham Stealer")'
+censys_query: 'services: (services.software.product: "Gotham Stealer" or http.response.html_title: "Gotham Stealer")'
 # censys_query: 'services.software.product: "Gotham Stealer"'
 censys_virtual_hosts: true
 malware_name: "unknown"
@@ -153,10 +154,10 @@ tags: [C2, stealer, SerpentStealer]
 ---
 name: Vidar
 censys_query: 'services.software.product: Vidar or
-  services: (tls.certificate.parsed.issuer.organization: "StaticIP" and
-  tls.certificate.parsed.subject.organizational_unit: "privateIP")'
+  services: (tls.certificates.leaf_data.subject_dn: "C=XX, ST=NY, L=NY, O=StaticIP, OU=privateIP" and
+  tls.certificates.leaf_data.issuer_dn: "C=XX, ST=NY, L=NY, O=StaticIP, OU=privateIP")'
 # censys_query: 'services.software.product: Vidar'
-censys_virtual_hosts: true
+censys_virtual_hosts: false
 malware_name: win.vidar
 confidence_level: 100
 tags: [C2]
@@ -194,7 +195,7 @@ name: "DarkComet"
 censys_query:
   "services.banner: {8EA4AB05FA7E , C4A6EB42FC74, B47CB892B702, 00798B4A0595,
   C7CF9C7CD932, 61A49CF4910B, 155CAD31A61F, 82695EF04B68, 1164805C82EE, 2ECB29F71503,
-  BF7CAB464EFB, DACA20185D99}"
+  BF7CAB464EFB, DACA20185D99, BF7CAB464EFB}"
 censys_virtual_hosts: false
 malware_name: "win.darkcomet"
 confidence_level: 100
@@ -269,13 +270,19 @@ confidence_level: 75
 tags: [C2]
 ---
 name: Viper
-censys_query:
-  'services: ((http.response.body_hashes="sha1:cd40dbcdae84b1c8606f29342066547069ed5a33"
-  or http.response.favicons.md5_hash="a7469955bff5e489d2270d9b389064e1") and http.response.html_title="VIPER")'
+censys_query: 'services: (http.response.html_title="VIPER" and http.response.favicons.md5_hash: {a7469955bff5e489d2270d9b389064e1, fd89b71df11755eacdf82d06074ed07b})'
 censys_virtual_hosts: false
 malware_name: apk.viper_rat
 confidence_level: 100
 tags: [C2, RAT]
+---
+name: Hookbot
+censys_query: 'services.software.product: hookbot or services.http.response.html_title="HOOKBOT PANEL"'
+# censys_query: 'services.software.product: hookbot'
+censys_virtual_hosts: true
+malware_name: apk.hook
+confidence_level: 100
+tags: [C2]
 ---
 name: "Gh0st RAT"
 censys_query: "services: (service_name: GHOST or banner=`Gh0st`)"
