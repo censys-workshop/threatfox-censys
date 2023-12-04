@@ -241,7 +241,7 @@ censys_query:
   and tls.certificates.leaf_data.subject_dn=/C=[^,]{10,20}, O=[^,]{10,20}, OU=[^,]{10,20}/
   and tls.certificates.leaf_data.issuer_dn=/C=[^,]{10,20}, O=[^,]{10,20}, OU=[^,]{10,20}/
   and service_name:UNKNOWN)
-censys_virtual_hosts: true
+censys_virtual_hosts: false
 malware_name: win.bianlian
 confidence_level: 100
 tags: [C2]
