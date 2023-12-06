@@ -291,11 +291,13 @@ def log_threatfox_response_data(
     )
 
 
-def log_summary() -> None:  # pragma: no cover
+def log_summary(logger: logging.Logger | None = None) -> None:  # pragma: no cover
     """
     Log the summary of the ThreatFox submissions.
     """
     global total_reward
     global total_submitted
 
-    logging.info(f"Summary: {total_submitted} submissions | {total_reward} reward")
+    if not logger:
+        logger = logging.getLogger()
+    logger.info(f"Summary: {total_submitted} submissions | {total_reward} reward")

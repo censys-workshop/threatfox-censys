@@ -27,6 +27,8 @@ USER_AGENT = (
     " +https://github.com/censys-workshop/threatfox-censys)"
 )
 
+# Create the scan logger
+scan_logger = logging.getLogger("scan")
 
 # Create the database engine
 engine = create_engine(settings.DATABASE_URL)
@@ -115,7 +117,7 @@ def submit_ioc(
 
     # If the IoC is already in the database, return None
     if ioc_in_database:
-        logging.debug(f"IoC {ioc} already in database.")
+        scan_logger.debug(f"IoC {ioc} already in database.")
         return None
 
     # Get fingerprint tags
@@ -135,21 +137,25 @@ def submit_ioc(
     tags = list(set(fingerprint_tags))
 
     # Log the tags
-    # logging.debug(f"Tags: {tags}")
+    # scan_logger.debug(f"Tags: {tags}")
 
     # Log that we're submitting the IoC to ThreatFox
-    logging.debug(f"Submitting {fingerprint.name} IoC {ioc} to ThreatFox...")
+    scan_logger.debug(f"Submitting {fingerprint.name} IoC {ioc} to ThreatFox...")
 
     # Submit the IoC to ThreatFox
-    threatfox_response = threatfox_client.submit_ioc(
-        threat_type=fingerprint.threat_type,
-        ioc_type=ioc_type.value,
-        malware=fingerprint.malware_name,
-        iocs=[ioc],
-        confidence_level=fingerprint.confidence_level,
-        reference=reference,
-        tags=tags,
-    )
+    try:
+        threatfox_response = threatfox_client.submit_ioc(
+            threat_type=fingerprint.threat_type,
+            ioc_type=ioc_type.value,
+            malware=fingerprint.malware_name,
+            iocs=[ioc],
+            confidence_level=fingerprint.confidence_level,
+            reference=reference,
+            tags=tags,
+        )
+    except Exception as e:
+        scan_logger.error(f"Error submitting IoC '{ioc}' to ThreatFox: {e}")
+        return None
 
     # Get the query status
     query_status = threatfox_response.get("query_status", "unknown")
@@ -193,7 +199,7 @@ def submit_ioc(
             return data
 
     # If the query was not successful, log the response
-    logging.error(f"Error submitting IoC '{ioc}' to ThreatFox.")
+    scan_logger.error(f"Error submitting IoC '{ioc}' to ThreatFox.")
 
     # Return None
     return None
@@ -212,7 +218,7 @@ def scan(args: Namespace) -> int:
         if len(specified_tags) == 0 or (
             len(specified_tags) == 1 and "" in specified_tags
         ):
-            logging.error("No tags specified.")
+            scan_logger.error("No tags specified.")
             return 1
 
         # Convert the tags to lowercase
@@ -279,7 +285,7 @@ def scan(args: Namespace) -> int:
         )
 
         # Log that we're searching Censys
-        logging.info(f"Searching Censys for fingerprint {fingerprint.name}...")
+        scan_logger.info(f"Searching Censys for fingerprint {fingerprint.name}...")
 
         # Gather the results
         hosts: list[dict] = []
@@ -288,11 +294,11 @@ def scan(args: Namespace) -> int:
                 for host in page:
                     hosts.append(host)
         except CensysException as e:
-            logging.error(f"Error searching Censys: {e}")
+            scan_logger.error(f"Error searching Censys: {e}")
             continue
 
         # Log the number of results
-        logging.info(f"Found {len(hosts)} results.")
+        scan_logger.info(f"Found {len(hosts)} results.")
 
         # Create the session
         with Session(engine) as session:
@@ -320,7 +326,7 @@ def scan(args: Namespace) -> int:
                 # Loop over the matched services if there is no name
                 if name is None:
                     if not is_ipv4_address(ip):
-                        logging.debug(
+                        scan_logger.debug(
                             f"IP {ip} is not a valid IPv4 address. Skipping..."
                         )
                         continue
@@ -331,14 +337,14 @@ def scan(args: Namespace) -> int:
 
                         # If the ip:port combination is in the excluded IOCs, skip it
                         if ip_port in excluded_iocs:
-                            logging.debug(
+                            scan_logger.debug(
                                 f"IP:Port {ip_port} in excluded IOCs. Skipping..."
                             )
                             continue
 
                         # Submit the ip:port combination
                         if args.no_submit:
-                            logging.info(
+                            scan_logger.info(
                                 f"Would submit {ip_port} to ThreatFox. Ref: {reference}"
                             )
                         else:
@@ -354,7 +360,7 @@ def scan(args: Namespace) -> int:
                 else:
                     # If the name is in the excluded IOCs, skip it
                     if name in excluded_iocs:
-                        logging.debug(f"Name {name} in excluded IOCs. Skipping...")
+                        scan_logger.debug(f"Name {name} in excluded IOCs. Skipping...")
                         continue
 
                     # Update the reference
@@ -362,7 +368,7 @@ def scan(args: Namespace) -> int:
 
                     # Submit the name
                     if args.no_submit:
-                        logging.info(
+                        scan_logger.info(
                             f"Would submit {name} to ThreatFox. Ref: {reference}"
                         )
                     else:
@@ -378,15 +384,17 @@ def scan(args: Namespace) -> int:
 
     # Log the summary or tell the user to rerun without --no-submit
     if args.no_submit:
-        logging.info("Rerun without --no-submit to submit the results to ThreatFox.")
+        scan_logger.info(
+            "Rerun without --no-submit to submit the results to ThreatFox."
+        )
     else:
-        log_summary()
+        log_summary(scan_logger)
 
     # Return 0
     return 0
 
 
-def create_fingerprint(args: Namespace) -> int:
+def create_fingerprint(_: Namespace) -> int:
     # Get the malware list
     malware_list = threatfox_client.get_malware_list()
     malware_list_data: dict = malware_list.get("data", {})
@@ -546,6 +554,141 @@ def create_fingerprint(args: Namespace) -> int:
     return 0
 
 
+def check_ioc_from_query(
+    args: Namespace,
+) -> int:
+    # Get the query
+    query: str = args.QUERY  # type: ignore[assignment]
+
+    # Get the virtual hosts
+    virtual_hosts: bool = args.virtual_hosts  # type: ignore[assignment]
+
+    # Set th virtual hosts value
+    censys_virtual_hosts = "INCLUDE" if virtual_hosts else "EXCLUDE"
+
+    # Search Censys
+    query_response = censys_client.search(
+        query, virtual_hosts=censys_virtual_hosts, pages=-1
+    )
+
+    # Log that we're searching Censys
+    logging.info(f"Searching Censys for query {query}...")
+
+    # Gather the results
+    hosts: list[dict] = []
+    try:
+        for page in query_response:
+            for host in page:
+                hosts.append(host)
+    except CensysException as e:
+        logging.error(f"Error searching Censys: {e}")
+        return 1
+
+    # Get the number of results
+    num_results = len(hosts)
+
+    # Log the number of results
+    logging.info(f"Found {num_results} results.")
+
+    # Keep track of the number of results with IOCs
+    num_results_with_iocs = 0
+
+    # All related IoCs
+    all_iocs: list[dict] = []
+
+    # Check each host against ThreatFox
+    for host in hosts:
+        ip = host["ip"]
+        name = host.get("name", None)
+
+        # Set boolean to track if we found an IoC
+        found_ioc = False
+
+        # Check the IP
+        threatfox_response = threatfox_client.search_iocs(ip)
+
+        # Get the query status
+        query_status = threatfox_response.get("query_status", "unknown")
+
+        # If the query was successful, print the results
+        if (
+            query_status == "ok"
+            and (data := threatfox_response.get("data", {}))
+            and (len(data) > 0)
+        ):
+            # Set the found IoC boolean
+            found_ioc = True
+
+            # Log the response data
+            logging.debug(
+                f"IP: {ip} (IoCs: {len(data)}) -"
+                f" https://threatfox.abuse.ch/browse.php?search=ioc%3A{ip}"
+            )
+
+            # Add the IoCs to the list
+            all_iocs.extend(data)
+
+        # Check the name
+        if name is not None:
+            threatfox_response = threatfox_client.search_iocs(name)
+
+            # Get the query status
+            query_status = threatfox_response.get("query_status", "unknown")
+
+            # If the query was successful, print the results
+            if (
+                query_status == "ok"
+                and (data := threatfox_response.get("data", {}))
+                and (len(data) > 0)
+            ):
+                # Set the found IoC boolean
+                found_ioc = True
+
+                # Log the response data
+                logging.debug(
+                    f"Name: {name} (IoCs: {len(data)}) -"
+                    f" https://threatfox.abuse.ch/browse.php?search=ioc%3A{name}"
+                )
+
+                # Add the IoCs to the list
+                all_iocs.extend(data)
+
+        # If we found an IoC, increment the number of results with IoCs
+        if found_ioc:
+            num_results_with_iocs += 1
+
+    # Print the number of results with IoCs
+    logging.info(f"Summary {num_results_with_iocs}/{num_results} results with IoCs.")
+
+    # If there are no results with IoCs, exit
+    if num_results_with_iocs == 0:
+        return 0
+
+    # Group the IoCs by malware name
+    iocs_by_malware_name: dict[str, list[dict]] = {}
+    for ioc in all_iocs:
+        # Get the malware name
+        malware_name = ioc.get("malware", "unknown")
+
+        # Add the IoC to the list
+        iocs_by_malware_name.setdefault(malware_name, []).append(ioc)
+
+    # Sort the IoCs by number of IoCs
+    iocs_by_malware_name = dict(
+        sorted(
+            iocs_by_malware_name.items(), key=lambda item: len(item[1]), reverse=True
+        )
+    )
+
+    # Print the IoCs
+    logging.info("Malware Families:")
+    for malware_name, iocs in iocs_by_malware_name.items():
+        logging.info(f"Malware: {malware_name} ({len(iocs)} IoCs)")
+
+    # Return 0
+    return 0
+
+
 def parse_args() -> Namespace:
     """
     Parse the arguments.
@@ -639,6 +782,24 @@ def parse_args() -> Namespace:
         help="Create a fingerprint.",
     )
     create_fingerprint_parser.set_defaults(func=create_fingerprint)
+
+    # Check IoC from query
+    check_ioc_from_query_parser = subparsers.add_parser(
+        "check-ioc",
+        help="Check IoC from query.",
+    )
+    check_ioc_from_query_parser.add_argument(
+        "QUERY",
+        type=str,
+        help="The query to check.",
+    )
+    check_ioc_from_query_parser.add_argument(
+        "--virtual-hosts",
+        "-v",
+        action="store_true",
+        help="Include virtual hosts in the query. (Default: False)",
+    )
+    check_ioc_from_query_parser.set_defaults(func=check_ioc_from_query)
 
     # Parse the arguments
     return parser.parse_args()
