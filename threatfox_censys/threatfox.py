@@ -1,4 +1,6 @@
 import logging
+from datetime import datetime
+from enum import Enum, auto
 from typing import Any
 
 import backoff
@@ -6,6 +8,8 @@ import requests
 from requests.utils import default_user_agent
 
 from .fingerprint import Fingerprint
+
+# import csv
 
 # Global variables
 total_submitted = 0
@@ -31,6 +35,10 @@ class ThreatFoxClient:
     >>> from threatfox_censys.threatfox.api import ThreatFoxClient
     >>> client = ThreatFoxClient(api_key="YOUR_API_KEY")
     """
+
+    api_key: str
+    base_url: str
+    timeout: int
 
     def __init__(
         self,
@@ -246,6 +254,144 @@ class ThreatFoxClient:
         data = {"query": "tag_list"}
         response = self._send_request(endpoint="", method="POST", data=data)
         return response
+
+
+class ThreatFoxExportFormat(Enum):
+    """
+    Enum for the ThreatFox export formats.
+    """
+
+    CSV = auto()
+    JSON = auto()
+
+
+class ThreatFoxExportClient:
+    """
+    Client for the ThreatFox export API.
+
+    Documentation: https://threatfox.abuse.ch/export/
+    """
+
+    base_url: str
+    timeout: int
+
+    def __init__(
+        self,
+        base_url: str = "https://threatfox.abuse.ch/export/",
+        timeout: int = 30,
+    ) -> None:
+        """
+        Initialize the ThreatFoxExportClient with the given parameters.
+
+        :param base_url: Base URL for the API (default is their v1 endpoint).
+        :param timeout: Timeout for requests (in seconds).
+        """
+        self.base_url = base_url.rstrip("/")  # Remove trailing slash if it exists
+        self.timeout = timeout
+        self.headers = {
+            "User-Agent": (
+                f"{default_user_agent()} (ThreatfoxCensys;"
+                " +https://github.com/censys-workshop/threatfox-censys)"
+            ),
+        }
+
+    @backoff.on_exception(
+        backoff.expo,
+        requests.exceptions.RequestException,
+        max_time=60,
+        giveup=fatal_code,  # type: ignore[arg-type]
+    )
+    def _send_request(
+        self,
+        export_name: str | None = None,
+        full: bool = False,
+        format: ThreatFoxExportFormat = ThreatFoxExportFormat.JSON,
+        write_to_file: bool = False,
+    ) -> dict:
+        """
+        Internal method to send requests to the API.
+
+        :param export_name: Name of the export.
+        :param full: Whether to get the full export or the recent export.
+        :param format: Format of the response (CSV or JSON).
+        :param write_to_file: Whether to write the response to a file.
+        :return: Response from the server.
+        """
+        format_path = "json" if format == ThreatFoxExportFormat.JSON else "csv"
+        full_path = "full" if full else "recent"
+        url_components = [self.base_url, format_path]
+        if export_name:
+            url_components.append(export_name)
+        url_components.append(full_path)
+        url = "/".join(url_components)
+        response = requests.get(url, headers=self.headers, timeout=self.timeout)
+
+        # Check for HTTP errors
+        if not response.ok:
+            # Log the error
+            logging.error(
+                f"Error sending request to {url}. Status code: {response.status_code}."
+            )
+            raise requests.HTTPError(response=response)
+
+        # Write the response to a file if requested
+        file_prefix = "threatfox_export"
+        if export_name:
+            file_prefix += f"_{export_name}"
+        file_prefix += f"_{full_path}"
+        file_prefix += f"_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"
+
+        if format == ThreatFoxExportFormat.JSON:
+            res = response.json()
+            if write_to_file:
+                with open(f"{file_prefix}.json", "w") as f:
+                    f.write(response.text)
+            return res
+        # if format == ThreatFoxExportFormat.CSV:
+        #     rows = response.text.splitlines()
+        #     # The first couple rows start with a # and are comments
+        #     # Except for the last comment which is the header
+        #     # So we need to remove the first couple rows and add the header back
+        #     # Get the comment rows
+        #     comment_rows = []
+        #     for row in rows:
+        #         if row.startswith("#"):
+        #             comment_rows.append(row)
+        #         else:
+        #             break
+        #     # Remove the comment rows
+        #     for comment_row in comment_rows:
+        #         rows.remove(comment_row)
+        #     # Add the header back
+        #     rows.insert(0, comment_rows[-1].lstrip("# "))
+        #     # Write the rows to a CSV file
+        #     reader = csv.DictReader(
+        #         rows,
+        #         fieldnames=[
+        #             "first_seen_utc",
+        #             "ioc_id",
+        #             "ioc_value",
+        #             "ioc_type",
+        #             "threat_type",
+        #             "fk_malware",
+        #             "malware_alias",
+        #             "malware_printable",
+        #             "last_seen_utc",
+        #             "confidence_level",
+        #             "reference",
+        #             "tags",
+        #             "anonymous",
+        #             "reporter",
+        #         ],
+        #         delimiter=",",
+        #     )
+        #     writer = csv.DictWriter(
+        #         open(f"{file_prefix}.csv", "w"), fieldnames=reader.fieldnames
+        #     )
+        #     writer.writeheader()
+        #     writer.writerows(list(reader))
+        #     return reader.__dict__
+        raise ValueError("Unsupported format")
 
 
 def log_threatfox_response_data(

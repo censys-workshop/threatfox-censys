@@ -7,19 +7,32 @@ confidence_level: 100
 tags: [C2]
 ---
 name: "Gh0st RAT"
-censys_query: "services: (service_name: GHOST or banner=`Gh0st`)"
-# censys_query: "services.service_name: GHOST"
+censys_query: "services.service_name: GHOST"
 censys_virtual_hosts: false
 malware_name: "win.ghost_rat"
 confidence_level: 75
 tags: [C2, RAT]
+---
+name: "DarkComet"
+censys_query: "services.service_name: DARKCOMET"
+censys_virtual_hosts: false
+malware_name: "win.darkcomet"
+confidence_level: 100
+tags: [C2]
 ---
 name: "DarkGate"
 censys_query: "services.service_name: DARKGATE"
 censys_virtual_hosts: true
 malware_name: "win.darkgate"
 confidence_level: 100
-tags: [C2, Downloader]
+tags: [C2]
+---
+name: "Sliver"
+censys_query: "services.software.product: Sliver"
+censys_virtual_hosts: false
+malware_name: "win.sliver"
+confidence_level: 90
+tags: [C2]
 ---
 name: ShadowPad
 censys_query: "services.software.product: ShadowPad"
@@ -54,7 +67,14 @@ censys_query: "services.software.product: Hookbot"
 censys_virtual_hosts: true
 malware_name: apk.hook
 confidence_level: 100
-tags: [C2]
+tags: [C2, Hookbot]
+---
+name: "Scarab"
+censys_query: "services.software.product: Scarab"
+censys_virtual_hosts: true
+malware_name: "unknown"
+confidence_level: 100
+tags: [C2, Scarab]
 ---
 name: "Quasar RAT"
 censys_query: "services.software.product: Quasar"
@@ -159,7 +179,21 @@ censys_query: "services.software.product: godzilla-loader"
 censys_virtual_hosts: false
 malware_name: win.godzilla_loader
 confidence_level: 100
-tags: [C2, Loader]
+tags: [C2, GodzillaLoader, Loader]
+---
+name: JinxLoader
+censys_query: 'services.software.product: JinxLoader'
+censys_virtual_hosts: false
+malware_name: unknown
+confidence_level: 100
+tags: [C2, JinxLoader, Loader]
+---
+name: Neptune Loader
+censys_query: 'services.software.product: neptune-loader'
+censys_virtual_hosts: false
+malware_name: unknown
+confidence_level: 100
+tags: [C2, NeptuneLoader, Loader]
 ---
 name: "NimPlant"
 censys_query: "services.software.product: NimPlant"
@@ -182,46 +216,201 @@ malware_name: unknown
 confidence_level: 100
 tags: [C2, byob]
 ---
+name: Vshell
+censys_query: "services.software: (vendor: Vshell and product: Vshell)"
+censys_virtual_hosts: false
+malware_name: unknown
+confidence_level: 100
+tags: [C2, Vshell]
+---
 name: "Gotham Stealer"
-censys_query: 'services.software.product: "gotham-stealer"'
+censys_query: "services.software.product: gotham-stealer"
 censys_virtual_hosts: true
 malware_name: "unknown"
 confidence_level: 100
 tags: [C2, stealer, GothamStealer]
 ---
+name: "Lumma Stealer"
+censys_query: 'services.software.product: lumma-stealer'
+censys_virtual_hosts: false
+malware_name: win.lumma
+confidence_level: 100
+tags: [C2, Stealer]
+---
+name: "Meduza Stealer"
+censys_query: "services.software.product: meduza-stealer"
+censys_virtual_hosts: true
+malware_name: "win.meduza"
+confidence_level: 100
+tags: [C2, Stealer]
+---
+name: "Bandit Stealer"
+censys_query: "services.software.product: bandit-stealer"
+censys_virtual_hosts: false
+malware_name: "win.bandit"
+confidence_level: 100
+tags: [C2, Stealer]
+---
+name: Atomic Stealer
+censys_query: "services.software.product: atomic-stealer"
+censys_virtual_hosts: false
+malware_name: osx.amos
+confidence_level: 100
+tags: [C2, Stealer, Amos]
+---
 name: "Serpent Stealer"
-censys_query: 'services: (http.response.html_title="Serpent" and tls.certificates.leaf_data.subject_dn="CN=petespizzatracker.com")'
-# censys_query: 'services.software.product: "serpent-stealer"'
+censys_query: "services.software.product: serpent-stealer"
 censys_virtual_hosts: true
 malware_name: unknown
 confidence_level: 100
 tags: [C2, stealer, SerpentStealer]
 ---
+name: Axile Stealer
+censys_query: 'services.software.product: axile-stealer'
+censys_virtual_hosts: true
+malware_name: unknown
+confidence_level: 100
+tags: [C2, Stealer, AxileStealer]
+---
+name: Vector Stealer
+censys_query: 'services.software.product: vector-stealer'
+censys_virtual_hosts: true
+malware_name: unknown
+confidence_level: 100
+tags: [C2, Stealer, VectorStealer]
+---
+name: Mint Stealer
+censys_query: 'services.software.product: mint-stealer'
+censys_virtual_hosts: true
+malware_name: unknown
+confidence_level: 100
+tags: [C2, Stealer, MintStealer]
+---
+name: Z3us Stealer
+censys_query: 'services.software.product: z3us-stealer'
+censys_virtual_hosts: true
+malware_name: unknown
+confidence_level: 100
+tags: [C2, Stealer, Z3usStealer]
+---
+name: Rastro Stealer
+censys_query: 'services.software.product: rastro-stealer'
+censys_virtual_hosts: true
+malware_name: unknown
+confidence_level: 100
+tags: [C2, Stealer, RastroStealer]
+---
+name: DarkEye Stealer
+censys_query: 'services.software.product: darkeye-stealer'
+censys_virtual_hosts: true
+malware_name: unknown
+confidence_level: 100
+tags: [C2, Stealer, DarkEyeStealer]
+---
+name: Agniane Stealer
+censys_query: 'services.software.product: agniane-stealer'
+censys_virtual_hosts: true
+malware_name: unknown
+confidence_level: 100
+tags: [C2, Stealer, AgnianeStealer]
+---
+name: Epsilon Stealer
+censys_query: 'services.software.product: epsilon-stealer'
+censys_virtual_hosts: true
+malware_name: unknown
+confidence_level: 100
+tags: [C2, Stealer, EpsilonStealer]
+---
+name: Kaiji
+censys_query: 'services.software.product: Kaiji'
+censys_virtual_hosts: false
+malware_name: elf.kaiji
+confidence_level: 100
+tags: [C2]
+---
+name: MooBot
+censys_query: 'services.software.product: MooBot'
+censys_virtual_hosts: false
+malware_name: elf.moobot
+confidence_level: 100
+tags: [C2]
+---
+name: "Bahamut"
+censys_query: 'services.software.product: Bahamut'
+censys_virtual_hosts: true
+malware_name: apk.bahamut
+confidence_level: 100
+tags: [C2]
+---
+name: "Unam Web Panel"
+censys_query: 'services.software.product: UnamWebPanel'
+censys_virtual_hosts: true
+malware_name: unknown
+confidence_level: 100
+tags: [C2, Unam]
+---
 name: "Vidar"
-censys_query: 'services.software.product: Vidar or
-  services: (tls.certificates.leaf_data.subject_dn: "C=XX, ST=NY, L=NY, O=StaticIP, OU=privateIP" and
-  tls.certificates.leaf_data.issuer_dn: "C=XX, ST=NY, L=NY, O=StaticIP, OU=privateIP")'
-# censys_query: 'services.software.product: Vidar'
+censys_query: 'services.software.product: Vidar'
 censys_virtual_hosts: false
 malware_name: win.vidar
 confidence_level: 100
 tags: [C2]
 ---
 name: "BlackNET RAT"
-censys_query: 'services: (software.product: "BlackNET RAT" or http.response.html_title: "BlackNET - Login")'
-# censys_query: 'services.software.product: "BlackNET RAT"'
+censys_query: 'services.software.product: "BlackNET RAT"'
 censys_virtual_hosts: true
 malware_name: "win.blacknet_rat"
 confidence_level: 100
 tags: [C2, RAT]
 ---
+name: Kraken RAT
+censys_query: 'services.software.product: kraken-rat'
+censys_virtual_hosts: true
+malware_name: unknown
+confidence_level: 100
+tags: [C2, RAT, KrakenRAT, Banking]
+---
+name: Godfather
+censys_query: services.http.response.favicons.md5_hash="e89cd917faec4357a5ad4f36960c6681"
+censys_virtual_hosts: true
+malware_name: apk.godfather
+confidence_level: 100
+tags: [C2]
+---
+name: Bumblebee
+censys_query: 'services.software.product: Bumblebee'
+censys_virtual_hosts: true
+malware_name: win.bumblebee
+confidence_level: 75
+tags: [C2]
+---
 name: "Viper"
-censys_query: 'services.software.product: Viper or services: (http.response.html_title="VIPER" and http.response.favicons.md5_hash: {a7469955bff5e489d2270d9b389064e1, fd89b71df11755eacdf82d06074ed07b})'
-# censys_query: 'services.software.product: Viper'
+censys_query: 'services.software.product: Viper'
 censys_virtual_hosts: false
 malware_name: unknown
 confidence_level: 100
 tags: [Viper]
+---
+name: EvilGinx
+censys_query: 'services.software.product: EvilGinx'
+censys_virtual_hosts: true
+malware_name: unknown
+confidence_level: 100
+tags: [Phishing, EvilGinx]
+---
+name: GoPhish
+censys_query: 'services.software.product: GoPhish'
+censys_virtual_hosts: false
+malware_name: unknown
+confidence_level: 100
+tags: [Phishing, GoPhish]
+---
+name: EvilGoPhish
+censys_query: 'services.software.product: EvilGoPhish'
+censys_virtual_hosts: true
+malware_name: unknown
+confidence_level: 100
+tags: [Phishing, EvilGoPhish]
 ---
 name: "Octopus"
 censys_query: services.http.response.body="<title>Under development</title><center><h1>Under
@@ -230,20 +419,27 @@ censys_virtual_hosts: false
 malware_name: ps1.octopus
 confidence_level: 100
 tags: [C2]
+# ---
+# name: "DarkTrack RAT"
+# censys_query: 'services.banner_hashes="sha256:4a991f13b7cbe3b35aeeecbf8a22c9e271b1ba58624dc8845454b8cb750406aa"'
+# censys_virtual_hosts: false
+# malware_name: win.darktrack_rat
+# confidence_level: 75
+# tags: [C2, RAT]
+# ---
+# name: "Extreme RAT"
+# censys_query: services.banner_hashes="sha256:4b68ab3847feda7d6c62c1fbcbeebfa35eab7351ed5e78f4ddadea5df64b8015"
+# censys_virtual_hosts: false
+# malware_name: win.extreme_rat
+# confidence_level: 100
+# tags: [C2, RAT]
 ---
-name: "DarkTrack RAT"
-censys_query: 'services.banner_hashes="sha256:4a991f13b7cbe3b35aeeecbf8a22c9e271b1ba58624dc8845454b8cb750406aa"'
-censys_virtual_hosts: false
-malware_name: win.darktrack_rat
-confidence_level: 75
-tags: [C2, RAT]
----
-name: "Extreme RAT"
-censys_query: services.banner_hashes="sha256:4b68ab3847feda7d6c62c1fbcbeebfa35eab7351ed5e78f4ddadea5df64b8015"
-censys_virtual_hosts: false
-malware_name: win.extreme_rat
+name: Copper
+censys_query: services.http.response.body_hashes="sha1:0f862b28435c36c31531d66006a638d97a85f649"
+censys_virtual_hosts: true
+malware_name: unknown
 confidence_level: 100
-tags: [C2, RAT]
+tags: [C2, Copper, Octo]
 ---
 name: "EggShell"
 censys_query: 'services.banner_hashes="sha256:ecc3bac73df1e6b837a175f2d850db9d2ed17e24312bf7f5a2d9db0b229ba01a"'
@@ -281,32 +477,22 @@ censys_virtual_hosts: false
 malware_name: "elf.bashlite"
 confidence_level: 90
 tags: [C2, DDOS]
----
-name: "DarkComet"
-censys_query:
-  "services.banner: {8EA4AB05FA7E , C4A6EB42FC74, B47CB892B702, 00798B4A0595,
-  C7CF9C7CD932, 61A49CF4910B, 155CAD31A61F, 82695EF04B68, 1164805C82EE, 2ECB29F71503,
-  BF7CAB464EFB, DACA20185D99}"
-censys_virtual_hosts: false
-malware_name: "win.darkcomet"
-confidence_level: 100
-tags: [C2]
----
-name: "NetBus"
-censys_query: 'services.banner="NetBus 1.60 \r"'
-censys_virtual_hosts: false
-malware_name: "unknown"
-confidence_level: 100
-tags: [C2, NetBus]
----
-name: XTreme RAT
-censys_query:
-  'services.banner_hashes="sha256:22adaf058a2cb668b15cb4c1f30e7cc720bbe38c146544169db35fbf630389c4"
-  and services.port: 10001'
-censys_virtual_hosts: false
-malware_name: win.extreme_rat
-confidence_level: 100
-tags: [C2, RAT]
+# ---
+# name: "NetBus"
+# censys_query: 'services.banner="NetBus 1.60 \r"'
+# censys_virtual_hosts: false
+# malware_name: "unknown"
+# confidence_level: 100
+# tags: [C2, NetBus]
+# ---
+# name: XTreme RAT
+# censys_query:
+#   'services.banner_hashes="sha256:22adaf058a2cb668b15cb4c1f30e7cc720bbe38c146544169db35fbf630389c4"
+#   and services.port: 10001'
+# censys_virtual_hosts: false
+# malware_name: win.extreme_rat
+# confidence_level: 100
+# tags: [C2, RAT]
 ---
 name: BianLian GO Trojan
 censys_query:
@@ -329,13 +515,6 @@ censys_query:
 censys_virtual_hosts: true
 malware_name: win.qakbot
 confidence_level: 100
-tags: [C2]
----
-name: "Sliver"
-censys_query: "services: (tls.certificates.leaf_data.pubkey_bit_size: 2048 and tls.certificates.leaf_data.subject.organization: /(ACME|Partners|Tech|Cloud|Synergy|Test|Debug)? ?(co|llc|inc|corp|ltd)?/ and jarm.fingerprint: 3fd21b20d00000021c43d21b21b43d41226dd5dfc615dd4a96265559485910 and tls.certificates.leaf_data.subject.country: US and tls.certificates.leaf_data.subject.postal_code: /<1001-9999>/) or services: (jarm.fingerprint: 00000000000000000043d43d00043de2a97eabb398317329f027c66e4c1b01 and port: 31337)"
-censys_virtual_hosts: false
-malware_name: "win.sliver"
-confidence_level: 90
 tags: [C2]
 ---
 name: Pikabot

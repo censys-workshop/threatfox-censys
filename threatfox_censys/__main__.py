@@ -2,6 +2,7 @@
 """This is the main entrypoint for ThreatFox Censys."""
 import logging
 from argparse import ArgumentParser, Namespace
+from datetime import datetime
 from enum import Enum
 
 import yaml
@@ -267,6 +268,9 @@ def scan(args: Namespace) -> int:
         # Split the file by newlines
         excluded_iocs = set(excluded_iocs_raw.split("\n"))
 
+    # Print the current date
+    scan_logger.info(f"Scan started at {datetime.now()}")
+
     # For each fingerprint, search Censys and submit the results to ThreatFox
     for fingerprint in fingerprints:
         # Get the virtual hosts
@@ -311,13 +315,13 @@ def scan(args: Namespace) -> int:
                 name: str | None = host.get("name", None)
 
                 # Get autonomous_system.name
-                autonomous_system_name = host["autonomous_system"]["name"]
+                autonomous_system_name = host.get("autonomous_system", {}).get("name")
 
                 # Build the tag list
                 additional_tags = []
 
                 # If the autonomous_system.name does not contain a space, add it
-                if " " not in autonomous_system_name:
+                if autonomous_system_name and " " not in autonomous_system_name:
                     additional_tags.append(autonomous_system_name)
 
                 # Create the reference
@@ -437,6 +441,16 @@ def create_fingerprint(_: Namespace) -> int:
             return True
         return result in malware_names
 
+    # Create a function to get the default tags
+    def get_default_tags(result: dict) -> str:
+        name = result["name"].lower()
+        malware_name = result["malware_name"].lower()
+        if "rat" in name or "rat" in malware_name:
+            return "C2,RAT"
+        if "stealer" in name or "stealer" in malware_name:
+            return "C2,Stealer"
+        return "C2"
+
     # Create the questions
     questions = [
         {
@@ -494,11 +508,7 @@ def create_fingerprint(_: Namespace) -> int:
             "validate": EmptyInputValidator(),
             "mandatory": False,
             # Make the default "C2,RAT" if "RAT" is in the malware name
-            "default": lambda result: (
-                "C2,RAT"
-                if "RAT" in result["name"].lower() or "rat" in result["malware_name"]
-                else "C2"
-            ),
+            "default": get_default_tags,
             "filter": lambda result: result.split(","),
         },
     ]
