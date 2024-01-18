@@ -69,12 +69,19 @@ malware_name: apk.hook
 confidence_level: 100
 tags: [C2, Hookbot]
 ---
-name: "Scarab"
+name: "Scarab Botnet"
 censys_query: "services.software.product: Scarab"
 censys_virtual_hosts: true
 malware_name: "unknown"
 confidence_level: 100
-tags: [C2, Scarab]
+tags: [C2, Scarab, Botnet]
+---
+name: Echida Botnet
+censys_query: 'services.software.product: Echida'
+censys_virtual_hosts: true
+malware_name: unknown
+confidence_level: 100
+tags: [C2, Echida, Botnet]
 ---
 name: "Quasar RAT"
 censys_query: "services.software.product: Quasar"
@@ -214,7 +221,7 @@ censys_query: "services.software.product: byob"
 censys_virtual_hosts: false
 malware_name: unknown
 confidence_level: 100
-tags: [C2, byob]
+tags: [C2, byob, Botnet]
 ---
 name: Vshell
 censys_query: "services.software: (vendor: Vshell and product: Vshell)"
@@ -376,6 +383,13 @@ censys_virtual_hosts: true
 malware_name: apk.godfather
 confidence_level: 100
 tags: [C2]
+---
+name: T34 Loader
+censys_query: services.http.response.body_hash="sha1:72f04cc3475d5cd6afcbf51ab3ff0f8dcd730618"
+censys_virtual_hosts: true
+malware_name: unknown
+confidence_level: 75
+tags: [C2, T34loader, Loader]
 ---
 name: Bumblebee
 censys_query: 'services.software.product: Bumblebee'

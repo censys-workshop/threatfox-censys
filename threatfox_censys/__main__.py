@@ -302,7 +302,7 @@ def scan(args: Namespace) -> int:
             continue
 
         # Log the number of results
-        scan_logger.info(f"Found {len(hosts)} results.")
+        scan_logger.info(f"Found {len(hosts)} {fingerprint.name} results.")
 
         # Create the session
         with Session(engine) as session:
@@ -314,15 +314,25 @@ def scan(args: Namespace) -> int:
                 # Try to get the name
                 name: str | None = host.get("name", None)
 
-                # Get autonomous_system.name
-                autonomous_system_name = host.get("autonomous_system", {}).get("name")
-
                 # Build the tag list
                 additional_tags = []
+
+                # Get autonomous_system
+                autonomous_system = host.get("autonomous_system", {})
+
+                # Get autonomous_system name
+                autonomous_system_name = autonomous_system.get("name")
 
                 # If the autonomous_system.name does not contain a space, add it
                 if autonomous_system_name and " " not in autonomous_system_name:
                     additional_tags.append(autonomous_system_name)
+
+                # Get the autonomous system number
+                autonomous_system_number = autonomous_system.get("asn")
+
+                # If the asn is not None, add it
+                if autonomous_system_number is not None:
+                    additional_tags.append(f"AS{autonomous_system_number}")
 
                 # Create the reference
                 reference = f"https://search.censys.io/hosts/{ip}"
