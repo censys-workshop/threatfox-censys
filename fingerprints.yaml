@@ -76,7 +76,7 @@ malware_name: "unknown"
 confidence_level: 100
 tags: [C2, Scarab, Botnet]
 ---
-name: Echida Botnet
+name: "Echida Botnet"
 censys_query: 'services.software.product: Echida'
 censys_virtual_hosts: true
 malware_name: unknown
@@ -188,14 +188,14 @@ malware_name: win.godzilla_loader
 confidence_level: 100
 tags: [C2, GodzillaLoader, Loader]
 ---
-name: JinxLoader
+name: "JinxLoader"
 censys_query: 'services.software.product: JinxLoader'
 censys_virtual_hosts: false
 malware_name: unknown
 confidence_level: 100
 tags: [C2, JinxLoader, Loader]
 ---
-name: Neptune Loader
+name: "Neptune Loader"
 censys_query: 'services.software.product: neptune-loader'
 censys_virtual_hosts: false
 malware_name: unknown
@@ -223,7 +223,7 @@ malware_name: unknown
 confidence_level: 100
 tags: [C2, byob, Botnet]
 ---
-name: Vshell
+name: "Vshell"
 censys_query: "services.software: (vendor: Vshell and product: Vshell)"
 censys_virtual_hosts: false
 malware_name: unknown
@@ -258,7 +258,7 @@ malware_name: "win.bandit"
 confidence_level: 100
 tags: [C2, Stealer]
 ---
-name: Atomic Stealer
+name: "Atomic Stealer"
 censys_query: "services.software.product: atomic-stealer"
 censys_virtual_hosts: false
 malware_name: osx.amos
@@ -268,67 +268,67 @@ tags: [C2, Stealer, Amos]
 name: "Serpent Stealer"
 censys_query: "services.software.product: serpent-stealer"
 censys_virtual_hosts: true
-malware_name: unknown
+malware_name: win.serpent
 confidence_level: 100
 tags: [C2, stealer, SerpentStealer]
 ---
-name: Axile Stealer
+name: "Axile Stealer"
 censys_query: 'services.software.product: axile-stealer'
 censys_virtual_hosts: true
 malware_name: unknown
 confidence_level: 100
 tags: [C2, Stealer, AxileStealer]
 ---
-name: Vector Stealer
+name: "Vector Stealer"
 censys_query: 'services.software.product: vector-stealer'
 censys_virtual_hosts: true
 malware_name: unknown
 confidence_level: 100
 tags: [C2, Stealer, VectorStealer]
 ---
-name: Mint Stealer
+name: "Mint Stealer"
 censys_query: 'services.software.product: mint-stealer'
 censys_virtual_hosts: true
-malware_name: unknown
+malware_name: win.mintstealer
 confidence_level: 100
 tags: [C2, Stealer, MintStealer]
 ---
-name: Z3us Stealer
+name: "Z3us Stealer"
 censys_query: 'services.software.product: z3us-stealer'
 censys_virtual_hosts: true
 malware_name: unknown
 confidence_level: 100
 tags: [C2, Stealer, Z3usStealer]
 ---
-name: Rastro Stealer
+name: "Rastro Stealer"
 censys_query: 'services.software.product: rastro-stealer'
 censys_virtual_hosts: true
 malware_name: unknown
 confidence_level: 100
 tags: [C2, Stealer, RastroStealer]
 ---
-name: DarkEye Stealer
+name: "DarkEye Stealer"
 censys_query: 'services.software.product: darkeye-stealer'
 censys_virtual_hosts: true
-malware_name: unknown
+malware_name: win.darkeye
 confidence_level: 100
 tags: [C2, Stealer, DarkEyeStealer]
 ---
-name: Agniane Stealer
+name: "Agniane Stealer"
 censys_query: 'services.software.product: agniane-stealer'
 censys_virtual_hosts: true
-malware_name: unknown
+malware_name: win.cinoshi
 confidence_level: 100
 tags: [C2, Stealer, AgnianeStealer]
 ---
-name: Epsilon Stealer
+name: "Epsilon Stealer"
 censys_query: 'services.software.product: epsilon-stealer'
 censys_virtual_hosts: true
 malware_name: unknown
 confidence_level: 100
 tags: [C2, Stealer, EpsilonStealer]
 ---
-name: Kaiji
+name: "Kaiji"
 censys_query: 'services.software.product: Kaiji'
 censys_virtual_hosts: false
 malware_name: elf.kaiji
@@ -370,7 +370,7 @@ malware_name: "win.blacknet_rat"
 confidence_level: 100
 tags: [C2, RAT]
 ---
-name: Kraken RAT
+name: "Kraken RAT"
 censys_query: 'services.software.product: kraken-rat'
 censys_virtual_hosts: true
 malware_name: unknown
@@ -384,7 +384,7 @@ malware_name: apk.godfather
 confidence_level: 100
 tags: [C2]
 ---
-name: T34 Loader
+name: "T34 Loader"
 censys_query: services.http.response.body_hash="sha1:72f04cc3475d5cd6afcbf51ab3ff0f8dcd730618"
 censys_virtual_hosts: true
 malware_name: unknown
@@ -405,21 +405,21 @@ malware_name: unknown
 confidence_level: 100
 tags: [Viper]
 ---
-name: EvilGinx
+name: "EvilGinx"
 censys_query: 'services.software.product: EvilGinx'
 censys_virtual_hosts: true
 malware_name: unknown
 confidence_level: 100
 tags: [Phishing, EvilGinx]
 ---
-name: GoPhish
+name: "GoPhish"
 censys_query: 'services.software.product: GoPhish'
 censys_virtual_hosts: false
 malware_name: unknown
 confidence_level: 100
 tags: [Phishing, GoPhish]
 ---
-name: EvilGoPhish
+name: "EvilGoPhish"
 censys_query: 'services.software.product: EvilGoPhish'
 censys_virtual_hosts: true
 malware_name: unknown
@@ -481,7 +481,7 @@ tags: [C2]
 name: GhostLocker
 censys_query: 'services: (http.response.html_title="Affiliate Login" and software.product="Werkzeug")'
 censys_virtual_hosts: true
-malware_name: unknown
+malware_name: "win.ghost_locker"
 confidence_level: 100
 tags: [C2, locker, GhostLocker]
 ---
