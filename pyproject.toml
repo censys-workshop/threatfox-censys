@@ -11,7 +11,7 @@ threatfox-censys = "threatfox_censys.__main__:main"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-censys = "^2.2.9"
+censys = "^2.2.12"
 requests = "*"
 python-dotenv = "^1.0.0"
 pydantic = "^2.4.2"
