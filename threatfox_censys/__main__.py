@@ -200,7 +200,9 @@ def submit_ioc(
             return data
 
     # If the query was not successful, log the response
-    scan_logger.error(f"Error submitting IoC '{ioc}' to ThreatFox.")
+    scan_logger.error(
+        f"Error submitting IoC '{ioc}' to ThreatFox: {threatfox_response}"
+    )
 
     # Return None
     return None
