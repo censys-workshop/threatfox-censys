@@ -39,7 +39,7 @@ Then install the dependencies.
 poetry install
 ```
 
-Then you will need to copy the `.env.example` file to `.env` and add your Censys API ID and Secret as well as your Threatfox API key. Also make sure to set the `DATABASE_URL` to your database.
+Then you will need to copy the `.env.example` file to `.env` and add your Censys API ID and Secret as well as your Threatfox API key (from <https://auth.abuse.ch/>). Also make sure to set the `DATABASE_URL` to your database.
 
 ```bash
 cp .env.example .env

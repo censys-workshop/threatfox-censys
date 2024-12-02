@@ -57,7 +57,7 @@ class ThreatFoxClient:
         self.base_url = base_url.rstrip("/")  # Remove trailing slash if it exists
         self.timeout = timeout
         self.headers = {
-            "API-KEY": self.api_key,
+            "Auth-Key": self.api_key,
             "Accept": "application/json",
             "User-Agent": (
                 f"{default_user_agent()} (ThreatfoxCensys;"
